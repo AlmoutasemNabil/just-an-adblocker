@@ -46,6 +46,20 @@ one-tap allow/block.
 
 That's it. The VPN icon appears in the status bar; ads stop resolving.
 
+### The acceptance test: in-app Google ads
+
+The measure this app is built against: **ads inside apps (AdMob & friends)
+must be blocked**, not just browser ads. Two mechanisms guarantee it:
+
+- A **built-in core ruleset compiled into the binary** (`doubleclick.net`,
+  `googlesyndication.com`, `app-measurement.com`, `admob.com`, plus the major
+  third-party mobile ad SDKs). It is merged into every compile, so blocking
+  works from first launch even if every list download fails.
+- **Settings ▸ Verify blocking** (also on the Dashboard): resolves the
+  canonical AdMob domains through the live system resolver — the exact path
+  every app's ad SDK uses — and shows a pass/fail verdict per domain, with
+  `apple.com` as the must-not-be-blocked control.
+
 ### Verifying it works
 
 - Safari: previously ad-filled sites render without ads.

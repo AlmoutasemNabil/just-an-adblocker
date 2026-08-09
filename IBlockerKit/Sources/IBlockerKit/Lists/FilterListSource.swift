@@ -17,9 +17,18 @@ public struct FilterListSource: Codable, Identifiable, Sendable, Equatable {
         self.isBuiltIn = isBuiltIn
     }
 
-    /// Only OISD starts enabled: broad ad/tracker coverage with a strict
+    /// The bundled core rules and OISD start enabled: the core set is the
+    /// guaranteed in-app-ad blocking floor (compiled into the app, no
+    /// download needed), OISD adds broad ad/tracker coverage with a strict
     /// no-breakage policy. The others are one tap away.
     public static let builtIn: [FilterListSource] = [
+        FilterListSource(
+            id: SeedRules.sourceID,
+            name: "Core mobile ad networks (built-in)",
+            url: URL(string: "https://bundled.invalid/core")!,
+            enabled: true,
+            isBuiltIn: true
+        ),
         FilterListSource(
             id: "oisd-big",
             name: "OISD Big",

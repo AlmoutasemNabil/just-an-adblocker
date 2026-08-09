@@ -28,6 +28,16 @@ public struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
+                    NavigationLink {
+                        BlockingTestView()
+                    } label: {
+                        Label("Verify blocking (in-app ad test)", systemImage: "checkmark.seal")
+                    }
+                } footer: {
+                    Text("Resolves the Google in-app ad domains through the live tunnel and shows whether an ad SDK could reach them.")
+                }
+
+                Section {
                     ForEach(Self.upstreamChoices, id: \.name) { choice in
                         HStack {
                             Text(choice.name)
