@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-linux:
+    name: swift test (Linux)
+    runs-on: ubuntu-24.04
+    container: swift:6.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run package tests
+        run: swift test --package-path IBlockerKit
+
+  test-macos:
+    name: swift test (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select newest Xcode 26
+        run: |
+          XC=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "$XC" ]; then sudo xcode-select -s "$XC"; fi
+          xcodebuild -version
+          swift --version
+      - name: Run package tests
+        run: swift test --package-path IBlockerKit
+
+  build-ios:
+    name: xcodebuild (iOS app, unsigned)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select newest Xcode 26
+        run: |
+          XC=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "$XC" ]; then sudo xcode-select -s "$XC"; fi
+          xcodebuild -version
+      - name: Lint project file
+        run: plutil -lint IBlocker.xcodeproj/project.pbxproj
+      - name: List targets and schemes
+        run: xcodebuild -list -project IBlocker.xcodeproj
+      - name: Build app + extensions
+        run: >
+          xcodebuild build
+          -project IBlocker.xcodeproj
+          -scheme IBlocker
+          -destination 'generic/platform=iOS'
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGN_IDENTITY=""
+          DEVELOPMENT_TEAM=""

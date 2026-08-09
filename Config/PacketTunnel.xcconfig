@@ -1,0 +1,7 @@
+#include "Shared.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(BUNDLE_ID_PREFIX).iblocker.tunnel
+INFOPLIST_FILE = PacketTunnel/Info.plist
+CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements
+APPLICATION_EXTENSION_API_ONLY = YES
+SKIP_INSTALL = YES

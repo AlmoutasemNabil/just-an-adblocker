@@ -1,0 +1,7 @@
+#include "Shared.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(BUNDLE_ID_PREFIX).iblocker.blocker
+INFOPLIST_FILE = ContentBlocker/Info.plist
+CODE_SIGN_ENTITLEMENTS = ContentBlocker/ContentBlocker.entitlements
+APPLICATION_EXTENSION_API_ONLY = YES
+SKIP_INSTALL = YES

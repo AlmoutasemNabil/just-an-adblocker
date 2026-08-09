@@ -1,0 +1,14 @@
+// ─────────────────────────────────────────────────────────────
+// The ONLY file you need to edit before building.
+//
+//   DEVELOPMENT_TEAM   your Apple Developer Team ID (paid account —
+//                      required for the Network Extension entitlement).
+//                      Find it at developer.apple.com/account → Membership.
+//   BUNDLE_ID_PREFIX   any reverse-DNS prefix you own, e.g. com.yourname
+//
+// Everything else (extension bundle IDs, the App Group) derives from these.
+// After editing: open IBlocker.xcodeproj, select your iPhone, hit Run.
+// ─────────────────────────────────────────────────────────────
+
+DEVELOPMENT_TEAM = YOURTEAMID
+BUNDLE_ID_PREFIX = com.example

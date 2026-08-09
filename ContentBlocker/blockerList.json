@@ -1,0 +1,26 @@
+[
+  {
+    "trigger": { "url-filter": "^https?://([^/:]+\\.)?doubleclick\\.net[/:]" },
+    "action": { "type": "block" }
+  },
+  {
+    "trigger": { "url-filter": "^https?://([^/:]+\\.)?googlesyndication\\.com[/:]" },
+    "action": { "type": "block" }
+  },
+  {
+    "trigger": { "url-filter": "^https?://([^/:]+\\.)?googleadservices\\.com[/:]" },
+    "action": { "type": "block" }
+  },
+  {
+    "trigger": { "url-filter": "^https?://([^/:]+\\.)?adnxs\\.com[/:]" },
+    "action": { "type": "block" }
+  },
+  {
+    "trigger": { "url-filter": "^https?://([^/:]+\\.)?adsafeprotected\\.com[/:]" },
+    "action": { "type": "block" }
+  },
+  {
+    "trigger": { "url-filter": "^https?://([^/:]+\\.)?scorecardresearch\\.com[/:]" },
+    "action": { "type": "block" }
+  }
+]
