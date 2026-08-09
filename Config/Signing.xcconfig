@@ -7,8 +7,10 @@
 //   BUNDLE_ID_PREFIX   any reverse-DNS prefix you own, e.g. com.yourname
 //
 // Everything else (extension bundle IDs, the App Group) derives from these.
-// After editing: open IBlocker.xcodeproj, select your iPhone, hit Run.
+// Note: Xcode's Signing & Capabilities pane wrote the same values as inline
+// overrides into project.pbxproj, which take precedence over this file —
+// keep the two in sync if you ever change them.
 // ─────────────────────────────────────────────────────────────
 
-DEVELOPMENT_TEAM = YOURTEAMID
-BUNDLE_ID_PREFIX = com.example
+DEVELOPMENT_TEAM = ABCDE12345
+BUNDLE_ID_PREFIX = com.almoutasem
