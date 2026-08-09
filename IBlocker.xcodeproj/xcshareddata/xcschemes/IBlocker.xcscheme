@@ -13,7 +13,7 @@
             buildForArchiving = "YES"
             buildForAnalyzing = "YES">
             <BuildableReference
-               BuildableState = "YES"
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "B10000000000000000000001"
                BuildableName = "IBlocker.app"
                BlueprintName = "IBlocker"
@@ -43,7 +43,7 @@
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
-            BuildableState = "YES"
+            BuildableIdentifier = "primary"
             BlueprintIdentifier = "B10000000000000000000001"
             BuildableName = "IBlocker.app"
             BlueprintName = "IBlocker"
@@ -60,7 +60,7 @@
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
-            BuildableState = "YES"
+            BuildableIdentifier = "primary"
             BlueprintIdentifier = "B10000000000000000000001"
             BuildableName = "IBlocker.app"
             BlueprintName = "IBlocker"

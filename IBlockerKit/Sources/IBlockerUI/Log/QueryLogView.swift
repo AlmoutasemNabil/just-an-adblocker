@@ -1,5 +1,6 @@
 #if os(iOS)
 import SwiftUI
+import UIKit
 import IBlockerKit
 
 public struct QueryLogView: View {
