@@ -65,6 +65,9 @@ public struct FilterListUpdater: Sendable {
         try? paths.ensureDirectories()
 
         for source in state.sources where source.enabled {
+            // The bundled core ruleset ships in the binary — nothing to fetch.
+            if source.id == SeedRules.sourceID { continue }
+
             var metadata = state.metadata[source.id] ?? FilterListMetadata()
             var request = URLRequest(url: source.url)
             request.timeoutInterval = 60

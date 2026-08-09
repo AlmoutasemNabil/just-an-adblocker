@@ -9,6 +9,11 @@ On-device packet tunnel. Blocking decisions are made locally against your
 compiled filter lists; non-blocked queries go to the upstream you chose
 (encrypted DoH by default).
 
+A built-in "Core mobile ad networks" ruleset ships inside the app binary and
+is always compiled in (toggleable in Lists). It guarantees the floor — Google
+in-app ads (AdMob) and the major mobile ad SDKs are blocked even before the
+first list download, offline, or during a list-server outage.
+
 - ✅ Works in every app, blocklist is yours, query log, allow/deny
 - ✅ Nothing is routed through anyone's server (only DNS goes to the upstream)
 - ⚠️ Occupies the device's one active VPN slot — can't run another VPN at

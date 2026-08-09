@@ -18,6 +18,14 @@ public struct DashboardView: View {
 
                     statusLine
 
+                    NavigationLink {
+                        BlockingTestView()
+                    } label: {
+                        Label("Verify ad blocking", systemImage: "checkmark.seal")
+                            .font(.callout.weight(.medium))
+                    }
+                    .buttonStyle(.bordered)
+
                     countersRow
 
                     StatsChartView()

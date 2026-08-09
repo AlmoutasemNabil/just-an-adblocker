@@ -23,9 +23,15 @@ public enum BlocklistCompiler {
         var listAllowHashes = Set<UInt64>()
 
         for source in state.sources where source.enabled {
-            let url = paths.cachedListURL(sourceID: source.id)
-            guard let data = try? Data(contentsOf: url),
-                  let text = String(data: data, encoding: .utf8) else { continue }
+            let text: String
+            if source.id == SeedRules.sourceID {
+                text = SeedRules.text
+            } else {
+                let url = paths.cachedListURL(sourceID: source.id)
+                guard let data = try? Data(contentsOf: url),
+                      let cached = String(data: data, encoding: .utf8) else { continue }
+                text = cached
+            }
 
             let parsed = FilterListParser.parse(text)
             stats.skippedLines += parsed.skippedLines
