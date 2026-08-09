@@ -24,8 +24,8 @@ public enum BlocklistCompiler {
 
         for source in state.sources where source.enabled {
             let text: String
-            if source.id == SeedRules.sourceID {
-                text = SeedRules.text
+            if let bundled = SeedRules.bundledText(for: source.id) {
+                text = bundled
             } else {
                 let url = paths.cachedListURL(sourceID: source.id)
                 guard let data = try? Data(contentsOf: url),
@@ -56,6 +56,7 @@ public enum BlocklistCompiler {
         let userDenyHashes = normalizeToHashes(state.userDenylist)
 
         state.generation &+= 1
+        state.compiledSeedVersion = SeedRules.version
         let generation = state.generation
 
         try CompiledBlocklist.write(hashes: blockHashes, generation: generation, to: paths.blocklistURL)

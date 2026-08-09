@@ -65,8 +65,8 @@ public struct FilterListUpdater: Sendable {
         try? paths.ensureDirectories()
 
         for source in state.sources where source.enabled {
-            // The bundled core ruleset ships in the binary — nothing to fetch.
-            if source.id == SeedRules.sourceID { continue }
+            // Bundled rulesets ship in the binary — nothing to fetch.
+            if SeedRules.bundledText(for: source.id) != nil { continue }
 
             var metadata = state.metadata[source.id] ?? FilterListMetadata()
             var request = URLRequest(url: source.url)

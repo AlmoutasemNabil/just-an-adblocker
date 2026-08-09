@@ -30,6 +30,13 @@ public struct FilterListSource: Codable, Identifiable, Sendable, Equatable {
             isBuiltIn: true
         ),
         FilterListSource(
+            id: SeedRules.relaySourceID,
+            name: "Block Apple tracker relay (in-app ad fix)",
+            url: URL(string: "https://bundled.invalid/apple-relay")!,
+            enabled: true,
+            isBuiltIn: true
+        ),
+        FilterListSource(
             id: "oisd-big",
             name: "OISD Big",
             url: URL(string: "https://big.oisd.nl")!,
@@ -85,17 +92,24 @@ public struct FilterListState: Codable, Sendable, Equatable {
     public var userAllowlist: [String]
     public var userDenylist: [String]
     public var generation: UInt32
+    /// SeedRules.version at the time of the last compile. When the app
+    /// updates with changed built-in rules, the mismatch triggers an
+    /// immediate recompile at launch. Optional so state saved by older
+    /// builds still decodes.
+    public var compiledSeedVersion: UInt32?
 
     public init(sources: [FilterListSource] = FilterListSource.builtIn,
                 metadata: [String: FilterListMetadata] = [:],
                 userAllowlist: [String] = [],
                 userDenylist: [String] = [],
-                generation: UInt32 = 0) {
+                generation: UInt32 = 0,
+                compiledSeedVersion: UInt32? = nil) {
         self.sources = sources
         self.metadata = metadata
         self.userAllowlist = userAllowlist
         self.userDenylist = userDenylist
         self.generation = generation
+        self.compiledSeedVersion = compiledSeedVersion
     }
 
     public static func load(from url: URL) -> FilterListState {

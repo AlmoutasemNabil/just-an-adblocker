@@ -133,6 +133,17 @@ public final class FilterListsViewModel {
         }
     }
 
+    /// Recompiles immediately when the app's built-in rules changed since
+    /// the on-device blob was produced (app updates), or the blob is
+    /// missing. Cheap no-op otherwise. Closes the gap where an updated app
+    /// ships new seed rules but the old blob keeps serving the tunnel.
+    public func ensureFreshCompile() async {
+        let blobMissing = !FileManager.default.fileExists(atPath: paths.blocklistURL.path)
+        if blobMissing || state.compiledSeedVersion != SeedRules.version {
+            await compileOnly()
+        }
+    }
+
     /// Foreground staleness check: BGAppRefresh is best-effort, so refresh
     /// whenever the app comes forward with lists older than a day.
     public func refreshIfStale() async {

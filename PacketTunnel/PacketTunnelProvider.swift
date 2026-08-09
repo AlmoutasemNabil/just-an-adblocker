@@ -31,7 +31,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             throw NEVPNError(.configurationInvalid)
         }
 
-        let matcher = paths.loadMatcher()
+        let matcher = Self.currentMatcher(paths: paths)
         let engine = DNSProxyEngine(
             matcher: matcher,
             upstream: upstream,
@@ -94,7 +94,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         case .reloadRules:
             if let paths {
-                await engine.reload(matcher: paths.loadMatcher())
+                await engine.reload(matcher: Self.currentMatcher(paths: paths))
                 response = .ok
             } else {
                 response = .failure("no app group container")
@@ -113,6 +113,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
         return try? TunnelIPCCoder.encode(response)
+    }
+
+    /// The matcher is the on-disk blobs PLUS the in-memory seed fallback for
+    /// every bundled source the user has left enabled — so the guaranteed
+    /// floor (in-app Google ads, Apple tracker-relay bypass) holds even when
+    /// the compiled blob is missing or stale.
+    private static func currentMatcher(paths: AppGroupPaths) -> DomainMatcher {
+        let state = FilterListState.load(from: paths.filterStateURL)
+        return paths.loadMatcher(builtInBlockHashes: SeedRules.fallbackHashes(state: state))
     }
 
     // MARK: - Packet loop
@@ -150,7 +159,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     if let onDisk = try? CompiledBlocklistView(contentsOf: paths.blocklistURL),
                        onDisk.generation != current {
                         Self.log.info("blocklist generation changed → reloading rules")
-                        await engine.reload(matcher: paths.loadMatcher())
+                        await engine.reload(matcher: Self.currentMatcher(paths: paths))
                     }
                 }
             }

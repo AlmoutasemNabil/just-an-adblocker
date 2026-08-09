@@ -63,6 +63,78 @@ final class SeedRulesTests: XCTestCase {
         XCTAssertEqual(matcher.verdict(for: "unity3d.com"), .none)
     }
 
+    func testRelayTextParsesCleanly() {
+        let parsed = FilterListParser.parse(SeedRules.relayText)
+        XCTAssertEqual(parsed.skippedLines, 0, "typo in SeedRules.relayText")
+        XCTAssertEqual(parsed.blockDomains.count, 7)
+        XCTAssertTrue(parsed.blockDomains.contains("mask.icloud.com"))
+        XCTAssertTrue(parsed.blockDomains.contains("apple-relay.fastly-edge.com"))
+    }
+
+    func testTunnelFallbackBlocksWithNoBlobsOnDisk() throws {
+        // The scenario that leaked in-app ads: tunnel running against a
+        // missing/stale blob. The in-memory fallback must hold the floor.
+        let paths = AppGroupPaths(containerURL: try makeTempDirectory())
+        let fallback = SeedRules.fallbackHashes(state: FilterListState())
+        let matcher = paths.loadMatcher(builtInBlockHashes: fallback)
+
+        XCTAssertEqual(matcher.verdict(for: "googleads.g.doubleclick.net"), .block)
+        XCTAssertEqual(matcher.verdict(for: "pagead2.googlesyndication.com"), .block)
+        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .block)
+        XCTAssertEqual(matcher.verdict(for: "apple-relay.fastly-edge.com"), .block)
+        XCTAssertEqual(matcher.verdict(for: "apple.com"), .none)
+        XCTAssertEqual(matcher.verdict(for: "icloud.com"), .none)
+        XCTAssertGreaterThan(matcher.blockedEntryCount, 0)
+
+        // Without the fallback, nothing matches — the old failure mode.
+        XCTAssertEqual(paths.loadMatcher().verdict(for: "googleads.g.doubleclick.net"), .none)
+    }
+
+    func testFallbackRespectsDisabledBundledSources() {
+        var state = FilterListState()
+        if let index = state.sources.firstIndex(where: { $0.id == SeedRules.relaySourceID }) {
+            state.sources[index].enabled = false
+        }
+        let fallback = SeedRules.fallbackHashes(state: state)
+        XCTAssertFalse(fallback.contains(FNV1a.hash64("mask.icloud.com")))
+        XCTAssertTrue(fallback.contains(FNV1a.hash64("doubleclick.net")))
+
+        // Sources missing from saved state (older builds) count as enabled.
+        state.sources.removeAll { $0.id == SeedRules.relaySourceID }
+        XCTAssertTrue(SeedRules.fallbackHashes(state: state).contains(FNV1a.hash64("mask.icloud.com")))
+    }
+
+    func testUserAllowBeatsFallback() throws {
+        let paths = AppGroupPaths(containerURL: try makeTempDirectory())
+        try CompiledBlocklist.write(hashes: [FNV1a.hash64("doubleclick.net")], generation: 1,
+                                    to: paths.userAllowlistURL)
+        let matcher = paths.loadMatcher(builtInBlockHashes: SeedRules.fallbackHashes(state: FilterListState()))
+        XCTAssertEqual(matcher.verdict(for: "googleads.g.doubleclick.net"), .allow)
+        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .block)
+    }
+
+    func testCompileStampsSeedVersion() throws {
+        let paths = AppGroupPaths(containerURL: try makeTempDirectory())
+        try paths.ensureDirectories()
+        var state = FilterListState()
+        XCTAssertNil(state.compiledSeedVersion)
+        _ = try BlocklistCompiler.compile(state: &state, paths: paths)
+        XCTAssertEqual(state.compiledSeedVersion, SeedRules.version)
+
+        // The compiled blob now carries the relay rules too.
+        let matcher = paths.loadMatcher()
+        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .block)
+    }
+
+    func testLegacyStateWithoutSeedVersionDecodes() throws {
+        let legacyJSON = """
+        {"sources":[],"metadata":{},"userAllowlist":[],"userDenylist":[],"generation":9}
+        """
+        let state = try JSONDecoder().decode(FilterListState.self, from: Data(legacyJSON.utf8))
+        XCTAssertNil(state.compiledSeedVersion)
+        XCTAssertEqual(state.generation, 9)
+    }
+
     func testDisablingBundledSourceRemovesSeedRules() throws {
         let paths = AppGroupPaths(containerURL: try makeTempDirectory())
         try paths.ensureDirectories()

@@ -45,6 +45,7 @@ public struct RootView: View {
             lists.onRulesChanged = { [weak tunnel] in
                 await tunnel?.reloadRules()
             }
+            await lists.ensureFreshCompile()
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {

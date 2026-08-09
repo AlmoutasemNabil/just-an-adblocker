@@ -17,18 +17,24 @@ public struct DomainMatcher: Sendable {
     public let blocklist: CompiledBlocklistView?
     public let userAllowlist: CompiledBlocklistView?
     public let userDenylist: CompiledBlocklistView?
+    /// In-memory always-on rules (the seed fallback). Independent of the
+    /// compiled blobs so the tunnel keeps its guaranteed floor even when the
+    /// on-disk blocklist is missing or predates an app update.
+    public let builtInBlockHashes: Set<UInt64>
 
     public init(blocklist: CompiledBlocklistView?,
                 userAllowlist: CompiledBlocklistView? = nil,
-                userDenylist: CompiledBlocklistView? = nil) {
+                userDenylist: CompiledBlocklistView? = nil,
+                builtInBlockHashes: Set<UInt64> = []) {
         self.blocklist = blocklist
         self.userAllowlist = userAllowlist
         self.userDenylist = userDenylist
+        self.builtInBlockHashes = builtInBlockHashes
     }
 
     public static let empty = DomainMatcher(blocklist: nil)
 
-    public var blockedEntryCount: Int { blocklist?.count ?? 0 }
+    public var blockedEntryCount: Int { (blocklist?.count ?? 0) + builtInBlockHashes.count }
 
     public func verdict(for domain: String) -> Verdict {
         let hashes = Self.suffixHashes(of: domain)
@@ -39,6 +45,9 @@ public struct DomainMatcher: Sendable {
         }
         if let deny = userDenylist, !deny.isEmpty {
             for hash in hashes where deny.contains(hash) { return .block }
+        }
+        if !builtInBlockHashes.isEmpty {
+            for hash in hashes where builtInBlockHashes.contains(hash) { return .block }
         }
         if let block = blocklist, !block.isEmpty {
             for hash in hashes where block.contains(hash) { return .block }

@@ -27,11 +27,14 @@ struct BlockingTestView: View {
     }
 
     @Environment(TunnelController.self) private var tunnel
+    @Environment(FilterListsViewModel.self) private var lists
     @State private var probes: [ProbeItem] = [
         ProbeItem(host: "googleads.g.doubleclick.net", label: "Google AdMob ad server", expectBlocked: true),
         ProbeItem(host: "pagead2.googlesyndication.com", label: "Google ad delivery", expectBlocked: true),
         ProbeItem(host: "app-measurement.com", label: "Google ad measurement", expectBlocked: true),
         ProbeItem(host: "adservice.google.com", label: "Google ad service", expectBlocked: true),
+        ProbeItem(host: "mask.icloud.com", label: "Apple tracker relay (ad-leak path)", expectBlocked: true),
+        ProbeItem(host: "apple-relay.fastly-edge.com", label: "Apple relay egress (ad-leak path)", expectBlocked: true),
         ProbeItem(host: "apple.com", label: "Control — must NOT be blocked", expectBlocked: false),
     ]
     @State private var isRunning = false
@@ -63,6 +66,21 @@ struct BlockingTestView: View {
                         }
                     }
                 }
+            }
+
+            Section("Tunnel engine") {
+                LabeledContent("Active rules",
+                               value: (tunnel.runtimeStats?.blocklistEntryCount ?? 0).formatted())
+                Button {
+                    Task {
+                        await lists.compileOnly()
+                        await tunnel.refreshStats()
+                        await run()
+                    }
+                } label: {
+                    Label("Recompile rules now", systemImage: "hammer")
+                }
+                .disabled(isRunning)
             }
 
             Section {
@@ -141,6 +159,7 @@ struct BlockingTestView: View {
     private func run() async {
         guard !isRunning else { return }
         isRunning = true
+        await tunnel.refreshStats()
         for index in probes.indices {
             probes[index].outcome = nil
         }

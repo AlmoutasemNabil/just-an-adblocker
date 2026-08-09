@@ -46,12 +46,14 @@ public struct AppGroupPaths: Sendable {
 
     /// Loads the current matcher from disk; missing files yield an empty
     /// matcher rather than an error so the tunnel can start before the first
-    /// list download completes.
-    public func loadMatcher() -> DomainMatcher {
+    /// list download completes. Pass `builtInBlockHashes` (the seed
+    /// fallback) so blocking never depends solely on the on-disk blob.
+    public func loadMatcher(builtInBlockHashes: Set<UInt64> = []) -> DomainMatcher {
         DomainMatcher(
             blocklist: try? CompiledBlocklistView(contentsOf: blocklistURL),
             userAllowlist: try? CompiledBlocklistView(contentsOf: userAllowlistURL),
-            userDenylist: try? CompiledBlocklistView(contentsOf: userDenylistURL)
+            userDenylist: try? CompiledBlocklistView(contentsOf: userDenylistURL),
+            builtInBlockHashes: builtInBlockHashes
         )
     }
 }
