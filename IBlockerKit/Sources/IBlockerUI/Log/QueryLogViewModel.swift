@@ -65,7 +65,7 @@ public final class QueryLogViewModel {
         if !query.isEmpty {
             result = result.filter { $0.domain.contains(query) }
         }
-        return result.reversed()
+        return Array(result.reversed())
     }
 
     /// Blocked count per hour of the local day, for the dashboard chart.

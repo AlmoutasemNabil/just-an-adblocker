@@ -68,7 +68,7 @@ public struct OnboardingView: View {
                 Button("Download blocklist") {
                     Task {
                         await lists.updateAndCompile(force: true)
-                        downloadDone = lists.lastCompileStats?.blockedEntryCount ?? 0 > 0
+                        downloadDone = (lists.lastCompileStats?.blockedEntryCount ?? 0) > 0
                     }
                 }
                 .buttonStyle(.borderedProminent)

@@ -15,7 +15,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var paths: AppGroupPaths?
     private var maintenanceTask: Task<Void, Never>?
 
-    override func startTunnel(options: [String: NSObject]? = nil) async throws {
+    override func startTunnel(options: [String: NSObject]?) async throws {
         guard let groupID = AppGroupPaths.groupID(from: Bundle.main),
               let paths = AppGroupPaths(groupID: groupID) else {
             Self.log.error("missing AppGroupID / container — check entitlements")
