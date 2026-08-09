@@ -43,6 +43,12 @@ final class DNSProxyEngineTests: XCTestCase {
         )
     }
 
+    /// handlePacket + unwrap (XCTUnwrap's autoclosure cannot contain await).
+    private func handled(_ engine: DNSProxyEngine, _ packet: Data) async throws -> Data {
+        let reply = await engine.handlePacket(packet)
+        return try XCTUnwrap(reply)
+    }
+
     private func dnsPayload(from reply: Data) throws -> MiniDNSResponse {
         let udp = try XCTUnwrap(PacketParser.parseUDP(reply))
         return try XCTUnwrap(MiniDNSResponse(Data(udp.payload)))
@@ -56,7 +62,7 @@ final class DNSProxyEngineTests: XCTestCase {
         let engine = try makeEngine(upstream: upstream)
 
         let query = makeDNSQueryData(id: 7, name: "ads.example.com")
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV4(payload: [UInt8](query)))
 
         let response = try dnsPayload(from: reply)
         XCTAssertEqual(response.id, 7)
@@ -73,14 +79,14 @@ final class DNSProxyEngineTests: XCTestCase {
     func testSubdomainOfBlockedDomainIsBlocked() async throws {
         let engine = try makeEngine(upstream: MockUpstream { _ in throw UpstreamError.timeout })
         let query = makeDNSQueryData(name: "x.tracking.doubleclick.net")
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV4(payload: [UInt8](query)))
         XCTAssertEqual(try dnsPayload(from: reply).answerRData, [0, 0, 0, 0])
     }
 
     func testBlockedHTTPSQueryGetsNoData() async throws {
         let engine = try makeEngine(upstream: MockUpstream { _ in throw UpstreamError.timeout })
         let query = makeDNSQueryData(name: "ads.example.com", qtype: DNSRecordType.https)
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV4(payload: [UInt8](query)))
         let response = try dnsPayload(from: reply)
         XCTAssertEqual(response.rcode, 0)
         XCTAssertEqual(response.ancount, 0)
@@ -89,7 +95,7 @@ final class DNSProxyEngineTests: XCTestCase {
     func testBlockedAAAAOverIPv6() async throws {
         let engine = try makeEngine(upstream: MockUpstream { _ in throw UpstreamError.timeout })
         let query = makeDNSQueryData(name: "ads.example.com", qtype: DNSRecordType.aaaa)
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV6(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV6(payload: [UInt8](query)))
         let response = try dnsPayload(from: reply)
         XCTAssertEqual(response.answerRData, [UInt8](repeating: 0, count: 16))
         XCTAssertEqual(PacketParser.parseUDP(reply)?.ipVersion, 6)
@@ -100,7 +106,7 @@ final class DNSProxyEngineTests: XCTestCase {
         let engine = try makeEngine(upstream: upstream)
 
         let query = makeDNSQueryData(id: 0x77, name: "www.apple.com")
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV4(payload: [UInt8](query)))
         let response = try dnsPayload(from: reply)
         XCTAssertTrue(response.isResponse)
         XCTAssertEqual(response.id, 0x77)
@@ -111,7 +117,7 @@ final class DNSProxyEngineTests: XCTestCase {
         let upstream = MockUpstream { query in fakeAnswer(for: query) }
         let engine = try makeEngine(upstream: upstream)
         let query = makeDNSQueryData(name: "cdn.safe.doubleclick.net")
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV4(payload: [UInt8](query)))
         // Forwarded (fake answer echo), not a 0.0.0.0 synthesis.
         XCTAssertNil(try dnsPayload(from: reply).answerRData)
     }
@@ -119,7 +125,7 @@ final class DNSProxyEngineTests: XCTestCase {
     func testUpstreamFailureYieldsServfail() async throws {
         let engine = try makeEngine(upstream: MockUpstream { _ in throw UpstreamError.timeout })
         let query = makeDNSQueryData(name: "www.apple.com")
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV4(payload: [UInt8](query)))
         XCTAssertEqual(try dnsPayload(from: reply).rcode, 2)
     }
 
@@ -131,7 +137,7 @@ final class DNSProxyEngineTests: XCTestCase {
         }
         let engine = try makeEngine(upstream: upstream)
         let query = makeDNSQueryData(name: "big.example.com")
-        let reply = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](query))))
+        let reply = try await handled(engine, makeUDPPacketV4(payload: [UInt8](query)))
         XCTAssertTrue(try dnsPayload(from: reply).isTruncated)
     }
 
@@ -155,9 +161,10 @@ final class DNSProxyEngineTests: XCTestCase {
         // A response-shaped message (QR=1) inside a UDP:53 packet: forwarded untouched.
         var responseLike = [UInt8](makeDNSQueryData(name: "weird.example.com"))
         responseLike[2] |= 0x80
+        let expected = responseLike
 
         let upstream = MockUpstream { query in
-            XCTAssertEqual([UInt8](query), responseLike)
+            XCTAssertEqual([UInt8](query), expected)
             return fakeAnswer(for: query)
         }
         let engine = try makeEngine(upstream: upstream)
@@ -196,7 +203,7 @@ final class DNSProxyEngineTests: XCTestCase {
 
         let name = "fresh.example.org"
         let packet = makeUDPPacketV4(payload: [UInt8](makeDNSQueryData(name: name)))
-        let before = try XCTUnwrap(await engine.handlePacket(packet))
+        let before = try await handled(engine, packet)
         XCTAssertNil(try dnsPayload(from: before).answerRData)  // forwarded
 
         try CompiledBlocklist.write(hashes: [FNV1a.hash64(name)], generation: 2, to: paths.blocklistURL)
@@ -204,7 +211,7 @@ final class DNSProxyEngineTests: XCTestCase {
         let generation = await engine.blocklistGeneration
         XCTAssertEqual(generation, 2)
 
-        let after = try XCTUnwrap(await engine.handlePacket(packet))
+        let after = try await handled(engine, packet)
         XCTAssertEqual(try dnsPayload(from: after).answerRData, [0, 0, 0, 0])  // now blocked
     }
 
@@ -220,8 +227,7 @@ final class DNSProxyEngineTests: XCTestCase {
 
         async let first = engine.handlePacket(makeUDPPacketV4(payload: [UInt8](makeDNSQueryData(id: 1, name: "one.example.com"))))
         try await Task.sleep(nanoseconds: 50_000_000)
-        let second = try XCTUnwrap(await engine.handlePacket(makeUDPPacketV4(payload: [UInt8](makeDNSQueryData(id: 2, name: "two.example.com"))))
-        )
+        let second = try await handled(engine, makeUDPPacketV4(payload: [UInt8](makeDNSQueryData(id: 2, name: "two.example.com"))))
         XCTAssertEqual(try dnsPayload(from: second).rcode, 2)
         _ = await first
     }

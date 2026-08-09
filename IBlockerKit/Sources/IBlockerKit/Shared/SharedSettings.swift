@@ -1,7 +1,8 @@
 import Foundation
 
 /// Typed accessors over the App Group's shared UserDefaults.
-public struct SharedSettings: Sendable {
+/// UserDefaults is documented thread-safe, hence the unchecked conformance.
+public struct SharedSettings: @unchecked Sendable {
     public enum Keys {
         public static let upstreamConfig = "upstreamConfig"
         public static let onboardingComplete = "onboardingComplete"
