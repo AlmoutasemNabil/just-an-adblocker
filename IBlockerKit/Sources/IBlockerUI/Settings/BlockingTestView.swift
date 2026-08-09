@@ -11,18 +11,29 @@ struct BlockingTestView: View {
         let host: String
         let label: String
         let expectBlocked: Bool
+        var isRelayProbe = false
+        /// True when the user chose to keep Apple's relay: the probe reports
+        /// status but never fails the verdict.
+        var informational = false
         var outcome: BlockingProbe.Outcome?
 
         var id: String { host }
 
         var passed: Bool? {
             guard let outcome else { return nil }
+            if informational { return true }
             switch outcome {
             case .blocked, .unreachable:
                 return expectBlocked
             case .resolved:
                 return !expectBlocked
             }
+        }
+
+        var isRelayReachable: Bool {
+            guard informational, let outcome else { return false }
+            if case .resolved = outcome { return true }
+            return false
         }
     }
 
@@ -33,8 +44,8 @@ struct BlockingTestView: View {
         ProbeItem(host: "pagead2.googlesyndication.com", label: "Google ad delivery", expectBlocked: true),
         ProbeItem(host: "app-measurement.com", label: "Google ad measurement", expectBlocked: true),
         ProbeItem(host: "adservice.google.com", label: "Google ad service", expectBlocked: true),
-        ProbeItem(host: "mask.icloud.com", label: "Apple tracker relay (ad-leak path)", expectBlocked: true),
-        ProbeItem(host: "apple-relay.fastly-edge.com", label: "Apple relay egress (ad-leak path)", expectBlocked: true),
+        ProbeItem(host: "mask.icloud.com", label: "Apple tracker relay (ad-leak path)", expectBlocked: true, isRelayProbe: true),
+        ProbeItem(host: "apple-relay.fastly-edge.com", label: "Apple relay egress (ad-leak path)", expectBlocked: true, isRelayProbe: true),
         ProbeItem(host: "apple.com", label: "Control — must NOT be blocked", expectBlocked: false),
     ]
     @State private var isRunning = false
@@ -108,6 +119,20 @@ struct BlockingTestView: View {
 
     @ViewBuilder
     private var banner: some View {
+        bannerContent
+        if probes.contains(where: \.isRelayReachable) {
+            Label("""
+            Apple's relay is reachable (your choice). Make sure "Limit IP Address \
+            Tracking" is OFF in Settings ▸ Wi-Fi ▸ ⓘ and Settings ▸ Cellular ▸ \
+            Cellular Data Options — otherwise apps' tracker traffic bypasses the filter.
+            """, systemImage: "info.circle")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private var bannerContent: some View {
         if tunnel.state != .connected {
             Label("Protection is off — turn it on first, then re-run.",
                   systemImage: "exclamationmark.shield")
@@ -132,13 +157,17 @@ struct BlockingTestView: View {
 
     private func statusIcon(for probe: ProbeItem) -> some View {
         Group {
-            switch probe.passed {
-            case .none:
-                ProgressView().controlSize(.small)
-            case .some(true):
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-            case .some(false):
-                Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+            if probe.isRelayReachable {
+                Image(systemName: "info.circle.fill").foregroundStyle(.blue)
+            } else {
+                switch probe.passed {
+                case .none:
+                    ProgressView().controlSize(.small)
+                case .some(true):
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                case .some(false):
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
             }
         }
         .frame(width: 22)
@@ -146,6 +175,9 @@ struct BlockingTestView: View {
 
     private func detailText(for probe: ProbeItem) -> String {
         guard let outcome = probe.outcome else { return probe.label }
+        if probe.isRelayReachable {
+            return "\(probe.label) — reachable, allowed by your relay setting"
+        }
         switch outcome {
         case .blocked:
             return "\(probe.label) — blocked (blackhole answer)"
@@ -160,8 +192,12 @@ struct BlockingTestView: View {
         guard !isRunning else { return }
         isRunning = true
         await tunnel.refreshStats()
+        let relayBlockEnabled = lists.isRelayBlockEnabled
         for index in probes.indices {
             probes[index].outcome = nil
+            if probes[index].isRelayProbe {
+                probes[index].informational = !relayBlockEnabled
+            }
         }
         for index in probes.indices {
             probes[index].outcome = await BlockingProbe.probe(host: probes[index].host)

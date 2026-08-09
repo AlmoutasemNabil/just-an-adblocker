@@ -5,6 +5,7 @@ import IBlockerKit
 
 public struct SettingsView: View {
     @Environment(TunnelController.self) private var tunnel
+    @Environment(FilterListsViewModel.self) private var lists
     @State private var upstream = AppEnvironment.settings.upstreamConfig
     @State private var logEnabled = AppEnvironment.settings.queryLogEnabled
     @State private var customDoHURL = ""
@@ -35,6 +36,23 @@ public struct SettingsView: View {
                     }
                 } footer: {
                     Text("Resolves the Google in-app ad domains through the live tunnel and shows whether an ad SDK could reach them.")
+                }
+
+                Section {
+                    Toggle("Block Apple tracker relay", isOn: Binding(
+                        get: { lists.isRelayBlockEnabled },
+                        set: { enabled in Task { await lists.setRelayBlock(enabled: enabled) } }
+                    ))
+                } header: {
+                    Text("Apple Private Relay")
+                } footer: {
+                    Text("""
+                    ON: maximum in-app ad blocking; iCloud Private Relay reports "unavailable". \
+                    OFF: Private Relay keeps working — but then turn OFF "Limit IP Address Tracking" \
+                    (Settings ▸ Wi-Fi ▸ ⓘ per network, and Settings ▸ Cellular ▸ Cellular Data Options), \
+                    or apps' tracker traffic rides Apple's relay past this filter. \
+                    Safari ads stay blocked by the content blocker either way.
+                    """)
                 }
 
                 Section {

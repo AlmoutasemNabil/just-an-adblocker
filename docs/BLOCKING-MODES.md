@@ -64,12 +64,26 @@ connections to known trackers through **Apple's relay** (`mask.icloud.com`,
 *remotely by the relay*, so those connections never touch on-device DNS —
 in-app ads load while the ad domains sit "Blocked" in the query log.
 
-The built-in "Block Apple tracker relay" source (Lists tab) blocks the relay
-endpoints themselves; iOS then falls back to direct connections, which go
-through the filter. Trade-off: paid iCloud+ Private Relay reports
-"unavailable" while it's enabled — disable the source if you prefer Private
-Relay over full in-app ad blocking. (Alternatively, turn off Settings ▸
-Wi-Fi ▸ (i) ▸ Limit IP Address Tracking per network.)
+Two supported configurations — pick in Settings ▸ Apple Private Relay:
+
+**Max blocking (default):** "Block Apple tracker relay" ON. The relay
+endpoints are blocked, iOS falls back to direct connections, everything
+goes through the filter. Trade-off: paid iCloud+ Private Relay reports
+"unavailable".
+
+**Keep Private Relay:** toggle OFF, then turn OFF "Limit IP Address
+Tracking" in Settings ▸ Wi-Fi ▸ ⓘ (each network) and Settings ▸ Cellular ▸
+Cellular Data Options. Result: Safari browsing keeps Apple's IP masking
+(Private Relay carries Safari, not in-app ads), apps' tracker traffic goes
+direct and gets filtered, and Safari ads stay blocked by the content
+blocker, which works inside WebKit regardless of the network path. The only
+delta vs. max blocking: trackers *not* on any of your lists connect
+directly with your real IP instead of a masked one — enabling HaGeZi Pro
+narrows that set.
+
+The Blocking Test knows about both modes: with the relay allowed, the relay
+probes turn informational and remind you about the Limit IP Address
+Tracking switches instead of failing the verdict.
 
 ## What none of these can do
 

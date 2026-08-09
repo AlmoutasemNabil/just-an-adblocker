@@ -29,7 +29,22 @@ public final class FilterListsViewModel {
         guard let index = state.sources.firstIndex(where: { $0.id == id }) else { return }
         state.sources[index].enabled = enabled
         persist()
-        await updateAndCompile(force: false)
+        if SeedRules.bundledText(for: id) != nil {
+            // Bundled sources need no download — recompile is enough.
+            await compileOnly()
+        } else {
+            await updateAndCompile(force: false)
+        }
+    }
+
+    /// The "Block Apple tracker relay" bundled source, surfaced in Settings
+    /// as the Private Relay compatibility choice.
+    public var isRelayBlockEnabled: Bool {
+        state.sources.first { $0.id == SeedRules.relaySourceID }?.enabled ?? true
+    }
+
+    public func setRelayBlock(enabled: Bool) async {
+        await setSource(id: SeedRules.relaySourceID, enabled: enabled)
     }
 
     /// Validates by test-downloading before accepting the source.
