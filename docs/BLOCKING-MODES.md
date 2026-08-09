@@ -64,7 +64,15 @@ connections to known trackers through **Apple's relay** (`mask.icloud.com`,
 *remotely by the relay*, so those connections never touch on-device DNS —
 in-app ads load while the ad domains sit "Blocked" in the query log.
 
-Two supported configurations — pick in Settings ▸ Apple Private Relay:
+Three supported configurations — pick in Settings ▸ Apple Private Relay:
+
+**Auto-suspend (the AdGuard way):** the tunnel claims the default route
+(while excluding all real traffic via more-specific routes, so nothing
+actually flows through it). iOS treats it as a full VPN and pauses Private
+Relay and tracker relaying on its own while protection runs; the relay
+returns the moment protection stops. No Apple domains blocked, no Settings
+changes needed. This is what commercial blockers ride on — their users'
+relays were always silently off while "protected".
 
 **Max blocking (default):** "Block Apple tracker relay" ON. The relay
 endpoints are blocked, iOS falls back to direct connections, everything

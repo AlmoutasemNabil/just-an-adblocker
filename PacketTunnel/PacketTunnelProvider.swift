@@ -42,23 +42,43 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         self.engine = engine
 
         let networkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
+        let relayStrategy = settings?.relayStrategy ?? .blockDomains
 
         let ipv4 = NEIPv4Settings(
             addresses: [TunnelConstants.tunnelIPv4],
             subnetMasks: [TunnelConstants.tunnelIPv4SubnetMask]
         )
-        ipv4.includedRoutes = [
-            NEIPv4Route(destinationAddress: TunnelConstants.dnsIPv4, subnetMask: "255.255.255.255"),
-        ]
+        let dnsRoute4 = NEIPv4Route(destinationAddress: TunnelConstants.dnsIPv4, subnetMask: "255.255.255.255")
+        if relayStrategy == .autoSuspend {
+            // Claim the default route so iOS treats this as a full VPN and
+            // suspends Private Relay / tracker relaying itself — but exclude
+            // both halves of the address space with more-specific routes, so
+            // real traffic never enters the tunnel. Only the /32 DNS route
+            // (more specific than the /1 exclusions) still comes to us.
+            ipv4.includedRoutes = [NEIPv4Route.default(), dnsRoute4]
+            ipv4.excludedRoutes = [
+                NEIPv4Route(destinationAddress: "0.0.0.0", subnetMask: "128.0.0.0"),
+                NEIPv4Route(destinationAddress: "128.0.0.0", subnetMask: "128.0.0.0"),
+            ]
+        } else {
+            ipv4.includedRoutes = [dnsRoute4]
+        }
         networkSettings.ipv4Settings = ipv4
 
         let ipv6 = NEIPv6Settings(
             addresses: [TunnelConstants.tunnelIPv6],
             networkPrefixLengths: [NSNumber(value: TunnelConstants.tunnelIPv6PrefixLength)]
         )
-        ipv6.includedRoutes = [
-            NEIPv6Route(destinationAddress: TunnelConstants.dnsIPv6, networkPrefixLength: 128),
-        ]
+        let dnsRoute6 = NEIPv6Route(destinationAddress: TunnelConstants.dnsIPv6, networkPrefixLength: 128)
+        if relayStrategy == .autoSuspend {
+            ipv6.includedRoutes = [NEIPv6Route.default(), dnsRoute6]
+            ipv6.excludedRoutes = [
+                NEIPv6Route(destinationAddress: "::", networkPrefixLength: 1),
+                NEIPv6Route(destinationAddress: "8000::", networkPrefixLength: 1),
+            ]
+        } else {
+            ipv6.includedRoutes = [dnsRoute6]
+        }
         networkSettings.ipv6Settings = ipv6
 
         let dns = NEDNSSettings(servers: [TunnelConstants.dnsIPv4, TunnelConstants.dnsIPv6])

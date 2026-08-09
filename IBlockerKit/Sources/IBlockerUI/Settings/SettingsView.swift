@@ -8,6 +8,7 @@ public struct SettingsView: View {
     @Environment(FilterListsViewModel.self) private var lists
     @State private var upstream = AppEnvironment.settings.upstreamConfig
     @State private var logEnabled = AppEnvironment.settings.queryLogEnabled
+    @State private var relayStrategy = AppEnvironment.settings.relayStrategy
     @State private var customDoHURL = ""
     @State private var customUDPAddress = ""
     @State private var blockerStatus: String?
@@ -39,20 +40,17 @@ public struct SettingsView: View {
                 }
 
                 Section {
-                    Toggle("Block Apple tracker relay", isOn: Binding(
-                        get: { lists.isRelayBlockEnabled },
-                        set: { enabled in Task { await lists.setRelayBlock(enabled: enabled) } }
-                    ))
+                    Picker("Relay handling", selection: relayStrategyBinding) {
+                        Text("Auto-suspend while protected").tag(RelayStrategy.autoSuspend)
+                        Text("Block relay domains").tag(RelayStrategy.blockDomains)
+                        Text("Keep Private Relay").tag(RelayStrategy.keepRelay)
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
                 } header: {
                     Text("Apple Private Relay")
                 } footer: {
-                    Text("""
-                    ON: maximum in-app ad blocking; iCloud Private Relay reports "unavailable". \
-                    OFF: Private Relay keeps working — but then turn OFF "Limit IP Address Tracking" \
-                    (Settings ▸ Wi-Fi ▸ ⓘ per network, and Settings ▸ Cellular ▸ Cellular Data Options), \
-                    or apps' tracker traffic rides Apple's relay past this filter. \
-                    Safari ads stay blocked by the content blocker either way.
-                    """)
+                    Text(relayFooter)
                 }
 
                 Section {
@@ -154,6 +152,49 @@ public struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+        }
+    }
+
+    private var relayStrategyBinding: Binding<RelayStrategy> {
+        Binding(
+            get: { relayStrategy },
+            set: { strategy in
+                relayStrategy = strategy
+                AppEnvironment.settings.relayStrategy = strategy
+                Task {
+                    await lists.setRelayBlock(enabled: strategy == .blockDomains)
+                    // Route presentation only applies at tunnel start.
+                    if tunnel.isOn {
+                        await tunnel.disable()
+                        await tunnel.enable()
+                    }
+                }
+            }
+        )
+    }
+
+    private var relayFooter: String {
+        switch relayStrategy {
+        case .autoSuspend:
+            return """
+            The tunnel presents itself as a full VPN, so iOS pauses Private Relay and \
+            tracker relaying by itself while protection runs — no Apple domains blocked, \
+            no Settings changes needed. The relay returns the moment protection stops. \
+            (This is how commercial blockers behave.) Changing this restarts the tunnel.
+            """
+        case .blockDomains:
+            return """
+            The relay endpoints are DNS-blocked while protection is on. Strongest \
+            guarantee; iCloud Private Relay reports "unavailable" until protection stops.
+            """
+        case .keepRelay:
+            return """
+            Nothing Apple is ever blocked and the relay stays fully functional. You must \
+            turn OFF "Limit IP Address Tracking" yourself (Settings ▸ Wi-Fi ▸ ⓘ on each \
+            network, and Settings ▸ Cellular ▸ Cellular Data Options) or apps' tracker \
+            traffic rides Apple's relay past this filter. Safari ads stay blocked by the \
+            content blocker either way.
+            """
         }
     }
 
