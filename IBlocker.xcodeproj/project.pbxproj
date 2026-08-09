@@ -105,7 +105,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A10000000000000000000002 /* MainGroup */ = {
+		A10000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000004 /* App */,
@@ -254,7 +254,7 @@
 				en,
 				Base,
 			);
-			mainGroup = A10000000000000000000002 /* MainGroup */;
+			mainGroup = A10000000000000000000002;
 			packageReferences = (
 				F10000000000000000000001 /* XCLocalSwiftPackageReference "IBlockerKit" */,
 			);
@@ -357,6 +357,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C40000000000000000000003 /* App.xcconfig */;
 			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almoutasem.iblocker;
 			};
 			name = Debug;
 		};
@@ -364,6 +368,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C40000000000000000000003 /* App.xcconfig */;
 			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almoutasem.iblocker;
 			};
 			name = Release;
 		};
@@ -371,6 +379,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C40000000000000000000004 /* PacketTunnel.xcconfig */;
 			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
 			};
 			name = Debug;
 		};
@@ -378,6 +389,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C40000000000000000000004 /* PacketTunnel.xcconfig */;
 			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
 			};
 			name = Release;
 		};
@@ -385,6 +399,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C40000000000000000000005 /* ContentBlocker.xcconfig */;
 			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
 			};
 			name = Debug;
 		};
@@ -392,6 +409,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C40000000000000000000005 /* ContentBlocker.xcconfig */;
 			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
 			};
 			name = Release;
 		};
