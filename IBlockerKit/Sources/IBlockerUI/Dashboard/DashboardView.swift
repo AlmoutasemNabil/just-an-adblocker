@@ -18,6 +18,8 @@ public struct DashboardView: View {
 
                     statusLine
 
+                    pauseControls
+
                     NavigationLink {
                         BlockingTestView()
                     } label: {
@@ -76,6 +78,39 @@ public struct DashboardView: View {
             }
         }
         .font(.callout.weight(.medium))
+    }
+
+    @ViewBuilder
+    private var pauseControls: some View {
+        if tunnel.state == .connected {
+            if let until = tunnel.pausedUntil, until > Date() {
+                VStack(spacing: 6) {
+                    Label {
+                        Text("Paused — resumes \(until, style: .relative)")
+                    } icon: {
+                        Image(systemName: "pause.circle.fill")
+                    }
+                    .font(.callout.weight(.medium))
+                    .foregroundStyle(.orange)
+
+                    Button("Resume now") {
+                        Task { await tunnel.resume() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                }
+            } else {
+                Menu {
+                    Button("Pause 5 minutes") { Task { await tunnel.pause(minutes: 5) } }
+                    Button("Pause 15 minutes") { Task { await tunnel.pause(minutes: 15) } }
+                    Button("Pause 1 hour") { Task { await tunnel.pause(minutes: 60) } }
+                } label: {
+                    Label("Pause blocking", systemImage: "pause.circle")
+                        .font(.callout.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+            }
+        }
     }
 
     private var countersRow: some View {

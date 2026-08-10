@@ -197,6 +197,37 @@ final class DNSProxyEngineTests: XCTestCase {
                        ["ads.example.com", "doubleclick.net"])
     }
 
+    func testPauseForwardsBlockedDomains() async throws {
+        let upstream = MockUpstream { query in fakeAnswer(for: query) }
+        let engine = try makeEngine(upstream: upstream)
+        let packet = makeUDPPacketV4(payload: [UInt8](makeDNSQueryData(name: "ads.example.com")))
+
+        // Blocked normally.
+        let before = try await handled(engine, packet)
+        XCTAssertEqual(try dnsPayload(from: before).answerRData, [0, 0, 0, 0])
+
+        // Paused → forwarded (fake upstream echo, no synthesized answer).
+        await engine.setPaused(until: Date(timeIntervalSinceNow: 300))
+        let during = try await handled(engine, packet)
+        XCTAssertNil(try dnsPayload(from: during).answerRData)
+        XCTAssertTrue(try dnsPayload(from: during).isResponse)
+        let pausedSnapshot = await engine.statsSnapshot()
+        XCTAssertNotNil(pausedSnapshot.pausedUntil)
+
+        // A past deadline is treated as not paused.
+        await engine.setPaused(until: Date(timeIntervalSinceNow: -1))
+        let after = try await handled(engine, packet)
+        XCTAssertEqual(try dnsPayload(from: after).answerRData, [0, 0, 0, 0])
+        let resumedSnapshot = await engine.statsSnapshot()
+        XCTAssertNil(resumedSnapshot.pausedUntil)
+
+        // Explicit resume.
+        await engine.setPaused(until: Date(timeIntervalSinceNow: 300))
+        await engine.setPaused(until: nil)
+        let resumed = try await handled(engine, packet)
+        XCTAssertEqual(try dnsPayload(from: resumed).answerRData, [0, 0, 0, 0])
+    }
+
     func testReloadPicksUpNewRules() async throws {
         let upstream = MockUpstream { query in fakeAnswer(for: query) }
         let engine = try makeEngine(upstream: upstream)

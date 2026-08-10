@@ -32,6 +32,9 @@ public actor DNSProxyEngine {
     private var stats: BlockerStats
     private let startedAt = Date()
     private var inFlight = 0
+    /// While set to a future instant, blocking is suspended and every query
+    /// is forwarded (a temporary "let everything through").
+    private var pausedUntil: Date?
 
     public init(matcher: DomainMatcher,
                 upstream: DNSUpstream,
@@ -62,7 +65,7 @@ public actor DNSProxyEngine {
             return await forward(raw: message, query: nil, udp: udp)
         }
 
-        if query.qclass == 1, matcher.verdict(for: query.questionName) == .block {
+        if !isPaused, query.qclass == 1, matcher.verdict(for: query.questionName) == .block {
             record(name: query.questionName, qtype: query.qtype, verdict: .blocked)
             let response = DNSResponseBuilder.blocked(for: query, ttl: configuration.blockTTL)
             return UDPReplyBuilder.reply(to: udp, payload: [UInt8](response))
@@ -131,6 +134,16 @@ public actor DNSProxyEngine {
         self.upstream = upstream
     }
 
+    /// Suspends blocking until `date` (nil resumes immediately).
+    public func setPaused(until date: Date?) {
+        pausedUntil = date
+    }
+
+    private var isPaused: Bool {
+        guard let pausedUntil else { return false }
+        return pausedUntil > Date()
+    }
+
     public var blocklistGeneration: UInt32? {
         matcher.blocklist?.generation
     }
@@ -141,7 +154,8 @@ public actor DNSProxyEngine {
             totalQueries: stats.totalQueries,
             blockedQueries: stats.totalBlocked,
             blocklistEntryCount: UInt64(matcher.blockedEntryCount),
-            memoryBytes: memoryBytes
+            memoryBytes: memoryBytes,
+            pausedUntil: isPaused ? pausedUntil : nil
         )
     }
 

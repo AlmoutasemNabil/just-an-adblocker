@@ -17,6 +17,18 @@ the device benefits, not just Safari.
 | **System encrypted DNS** | Same as the profile, installed in-app via `NEDNSSettingsManager` |
 | **Safari content blocker** | Hides in-page leftovers (empty ad frames, cosmetic rules from EasyList) |
 
+## Quick controls
+
+- **Pause**: Dashboard → Pause blocking (5 min / 15 min / 1 hour) for a
+  checkout, captcha, or link a list breaks. It re-arms itself; no need to
+  remember to turn blocking back on.
+- **Home/Lock Screen widget**: ads-blocked-today counter and protection
+  status (small, medium, and Lock Screen sizes).
+- **Control Center toggle** (iOS 18+): flip protection on/off without
+  opening the app.
+- **Siri & Shortcuts**: "Turn on IBlocker", "Pause IBlocker", "Update
+  IBlocker lists" — automatable (e.g. pause when a specific app opens).
+
 Filter lists (OISD, HaGeZi, StevenBlack, AdGuard DNS, plus any custom URL) are
 downloaded straight from their sources, compiled to a memory-mapped binary
 blob, and auto-updated. A live query log shows every DNS decision with

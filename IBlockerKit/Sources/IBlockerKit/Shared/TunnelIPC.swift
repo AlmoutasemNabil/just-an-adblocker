@@ -39,6 +39,8 @@ public enum TunnelRequest: Codable, Sendable {
     case reloadRules
     case getStats
     case setUpstream(UpstreamConfig)
+    /// Suspend blocking until the given instant; nil resumes.
+    case setPause(until: Date?)
 }
 
 public struct TunnelRuntimeStats: Codable, Sendable, Equatable {
@@ -47,14 +49,17 @@ public struct TunnelRuntimeStats: Codable, Sendable, Equatable {
     public var blockedQueries: UInt64
     public var blocklistEntryCount: UInt64
     public var memoryBytes: UInt64?
+    /// Non-nil when blocking is currently paused; the instant it resumes.
+    public var pausedUntil: Date?
 
     public init(startedAt: Date? = nil, totalQueries: UInt64 = 0, blockedQueries: UInt64 = 0,
-                blocklistEntryCount: UInt64 = 0, memoryBytes: UInt64? = nil) {
+                blocklistEntryCount: UInt64 = 0, memoryBytes: UInt64? = nil, pausedUntil: Date? = nil) {
         self.startedAt = startedAt
         self.totalQueries = totalQueries
         self.blockedQueries = blockedQueries
         self.blocklistEntryCount = blocklistEntryCount
         self.memoryBytes = memoryBytes
+        self.pausedUntil = pausedUntil
     }
 }
 

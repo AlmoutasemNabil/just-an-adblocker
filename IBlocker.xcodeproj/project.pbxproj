@@ -19,6 +19,11 @@
 		D30000000000000000000001 /* ContentBlockerRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000001 /* ContentBlockerRequestHandler.swift */; };
 		D30000000000000000000002 /* blockerList.json in Resources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000004 /* blockerList.json */; };
 		D30000000000000000000003 /* IBlockerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000005 /* IBlockerKit */; };
+		D10000000000000000000007 /* IBlockerWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C50000000000000000000004 /* IBlockerWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D40000000000000000000001 /* IBlockerWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000001 /* IBlockerWidgetBundle.swift */; };
+		D40000000000000000000002 /* StatusWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000002 /* StatusWidget.swift */; };
+		D40000000000000000000003 /* ProtectionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000003 /* ProtectionControl.swift */; };
+		D40000000000000000000004 /* IBlockerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000006 /* IBlockerKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +41,13 @@
 			remoteGlobalIDString = B30000000000000000000001;
 			remoteInfo = ContentBlocker;
 		};
+		G30000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B40000000000000000000001;
+			remoteInfo = IBlockerWidgets;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +59,7 @@
 			files = (
 				D10000000000000000000003 /* PacketTunnel.appex in Embed Foundation Extensions */,
 				D10000000000000000000004 /* ContentBlocker.appex in Embed Foundation Extensions */,
+				D10000000000000000000007 /* IBlockerWidgets.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -70,9 +83,16 @@
 		C40000000000000000000003 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
 		C40000000000000000000004 /* PacketTunnel.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PacketTunnel.xcconfig; sourceTree = "<group>"; };
 		C40000000000000000000005 /* ContentBlocker.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ContentBlocker.xcconfig; sourceTree = "<group>"; };
+		C40000000000000000000006 /* Widgets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Widgets.xcconfig; sourceTree = "<group>"; };
 		C50000000000000000000001 /* IBlocker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IBlocker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C50000000000000000000002 /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C50000000000000000000003 /* ContentBlocker.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ContentBlocker.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C50000000000000000000004 /* IBlockerWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IBlockerWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C60000000000000000000001 /* IBlockerWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IBlockerWidgetBundle.swift; sourceTree = "<group>"; };
+		C60000000000000000000002 /* StatusWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusWidget.swift; sourceTree = "<group>"; };
+		C60000000000000000000003 /* ProtectionControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectionControl.swift; sourceTree = "<group>"; };
+		C60000000000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C60000000000000000000005 /* IBlockerWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = IBlockerWidgets.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +122,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B40000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D40000000000000000000004 /* IBlockerKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -111,6 +139,7 @@
 				A10000000000000000000004 /* App */,
 				A10000000000000000000005 /* PacketTunnel */,
 				A10000000000000000000006 /* ContentBlocker */,
+				A10000000000000000000008 /* Widgets */,
 				A10000000000000000000007 /* Config */,
 				A10000000000000000000003 /* Products */,
 			);
@@ -122,8 +151,21 @@
 				C50000000000000000000001 /* IBlocker.app */,
 				C50000000000000000000002 /* PacketTunnel.appex */,
 				C50000000000000000000003 /* ContentBlocker.appex */,
+				C50000000000000000000004 /* IBlockerWidgets.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000008 /* Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				C60000000000000000000001 /* IBlockerWidgetBundle.swift */,
+				C60000000000000000000002 /* StatusWidget.swift */,
+				C60000000000000000000003 /* ProtectionControl.swift */,
+				C60000000000000000000004 /* Info.plist */,
+				C60000000000000000000005 /* IBlockerWidgets.entitlements */,
+			);
+			path = Widgets;
 			sourceTree = "<group>";
 		};
 		A10000000000000000000004 /* App */ = {
@@ -166,6 +208,7 @@
 				C40000000000000000000003 /* App.xcconfig */,
 				C40000000000000000000004 /* PacketTunnel.xcconfig */,
 				C40000000000000000000005 /* ContentBlocker.xcconfig */,
+				C40000000000000000000006 /* Widgets.xcconfig */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -187,6 +230,7 @@
 			dependencies = (
 				G10000000000000000000002 /* PBXTargetDependency */,
 				G20000000000000000000002 /* PBXTargetDependency */,
+				G30000000000000000000002 /* PBXTargetDependency */,
 			);
 			name = IBlocker;
 			packageProductDependencies = (
@@ -237,6 +281,25 @@
 			productReference = C50000000000000000000003 /* ContentBlocker.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		B40000000000000000000001 /* IBlockerWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E40000000000000000000001 /* Build configuration list for PBXNativeTarget "IBlockerWidgets" */;
+			buildPhases = (
+				B40000000000000000000002 /* Sources */,
+				B40000000000000000000003 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IBlockerWidgets;
+			packageProductDependencies = (
+				F20000000000000000000006 /* IBlockerKit */,
+			);
+			productName = IBlockerWidgets;
+			productReference = C50000000000000000000004 /* IBlockerWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -265,6 +328,7 @@
 				B10000000000000000000001 /* IBlocker */,
 				B20000000000000000000001 /* PacketTunnel */,
 				B30000000000000000000001 /* ContentBlocker */,
+				B40000000000000000000001 /* IBlockerWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -313,6 +377,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B40000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D40000000000000000000001 /* IBlockerWidgetBundle.swift in Sources */,
+				D40000000000000000000002 /* StatusWidget.swift in Sources */,
+				D40000000000000000000003 /* ProtectionControl.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -325,6 +399,11 @@
 			isa = PBXTargetDependency;
 			target = B30000000000000000000001 /* ContentBlocker */;
 			targetProxy = G20000000000000000000001 /* PBXContainerItemProxy */;
+		};
+		G30000000000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B40000000000000000000001 /* IBlockerWidgets */;
+			targetProxy = G30000000000000000000001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -415,6 +494,26 @@
 			};
 			name = Release;
 		};
+		E40000000000000000000002 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C40000000000000000000006 /* Widgets.xcconfig */;
+			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
+			};
+			name = Debug;
+		};
+		E40000000000000000000003 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C40000000000000000000006 /* Widgets.xcconfig */;
+			buildSettings = {
+				APP_GROUP_ID = group.com.almoutasem.iblocker;
+				BUNDLE_ID_PREFIX = com.almoutasem;
+				DEVELOPMENT_TEAM = ABCDE12345;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -454,6 +553,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E40000000000000000000001 /* Build configuration list for PBXNativeTarget "IBlockerWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E40000000000000000000002 /* Debug */,
+				E40000000000000000000003 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -481,6 +589,10 @@
 			productName = IBlockerTunnelKit;
 		};
 		F20000000000000000000005 /* IBlockerKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = IBlockerKit;
+		};
+		F20000000000000000000006 /* IBlockerKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = IBlockerKit;
 		};

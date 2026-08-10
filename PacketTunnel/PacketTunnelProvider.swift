@@ -39,6 +39,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             statsURL: paths.statsURL,
             configuration: .init(logEnabled: settings?.queryLogEnabled ?? true)
         )
+        await engine.setPaused(until: settings?.pausedUntil)
         self.engine = engine
 
         let networkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
@@ -87,6 +88,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         networkSettings.mtu = NSNumber(value: TunnelConstants.mtu)
 
         try await setTunnelNetworkSettings(networkSettings)
+        settings?.protectionActive = true
 
         Self.log.info("tunnel up — \(matcher.blockedEntryCount) rules, upstream \(upstreamConfig.displayName, privacy: .public), available memory \(os_proc_available_memory())")
 
@@ -97,6 +99,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     override func stopTunnel(with reason: NEProviderStopReason) async {
         Self.log.info("tunnel stopping: \(String(describing: reason), privacy: .public)")
         maintenanceTask?.cancel()
+        if let groupID = AppGroupPaths.groupID(from: Bundle.main),
+           let settings = SharedSettings(groupID: groupID) {
+            settings.protectionActive = false
+        }
         if let engine {
             await engine.flush()
         }
@@ -131,6 +137,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             } else {
                 response = .failure("invalid upstream config")
             }
+
+        case .setPause(let until):
+            if let groupID = AppGroupPaths.groupID(from: Bundle.main),
+               let settings = SharedSettings(groupID: groupID) {
+                settings.pausedUntil = until
+            }
+            await engine.setPaused(until: until)
+            response = .ok
         }
         return try? TunnelIPCCoder.encode(response)
     }
@@ -167,12 +181,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     /// Flushes the log/stats every 2 s and picks up recompiled blocklists
     /// even if the app's reload IPC never arrives (e.g. app was killed).
     private func startMaintenance(paths: AppGroupPaths) {
+        let groupID = AppGroupPaths.groupID(from: Bundle.main)
         maintenanceTask = Task { [weak self] in
             var tick: UInt64 = 0
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
                 guard let self, let engine = self.engine else { return }
                 await engine.flush()
+
+                // Re-read the pause deadline so a pause set by the widget or
+                // an App Intent (which can't reach the tunnel over IPC)
+                // propagates within one tick.
+                if let groupID, let settings = SharedSettings(groupID: groupID) {
+                    await engine.setPaused(until: settings.pausedUntil)
+                }
+
                 tick += 1
                 if tick % 5 == 0 {
                     let current = await engine.blocklistGeneration

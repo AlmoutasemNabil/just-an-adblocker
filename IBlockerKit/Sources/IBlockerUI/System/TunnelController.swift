@@ -153,5 +153,28 @@ public final class TunnelController {
     public func setUpstream(_ config: UpstreamConfig) async {
         _ = await send(.setUpstream(config))
     }
+
+    // MARK: - Pause
+
+    public var pausedUntil: Date? { runtimeStats?.pausedUntil }
+    public var isPaused: Bool { (pausedUntil ?? .distantPast) > Date() }
+
+    /// Suspends blocking for `minutes`, then it resumes on its own. Writes
+    /// shared state (so a resume survives even if IPC is momentarily
+    /// unavailable) and tells the live tunnel immediately.
+    public func pause(minutes: Int) async {
+        let until = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
+        AppEnvironment.settings.pausedUntil = until
+        _ = await send(.setPause(until: until))
+        await refreshStats()
+        VPNControl.reloadWidgets()
+    }
+
+    public func resume() async {
+        AppEnvironment.settings.pausedUntil = nil
+        _ = await send(.setPause(until: nil))
+        await refreshStats()
+        VPNControl.reloadWidgets()
+    }
 }
 #endif

@@ -24,6 +24,8 @@ public struct SharedSettings: @unchecked Sendable {
         public static let queryLogEnabled = "queryLogEnabled"
         public static let lastListUpdate = "lastListUpdate"
         public static let relayStrategy = "relayStrategy"
+        public static let pausedUntil = "pausedUntil"
+        public static let protectionActive = "protectionActive"
     }
 
     private let defaults: UserDefaults
@@ -76,5 +78,29 @@ public struct SharedSettings: @unchecked Sendable {
             return strategy
         }
         nonmutating set { defaults.set(newValue.rawValue, forKey: Keys.relayStrategy) }
+    }
+
+    /// When set to a future instant, the tunnel forwards everything without
+    /// blocking (a temporary "let this through" for a broken checkout,
+    /// captcha, or link). Any process — app, widget, App Intent — can write
+    /// it; the tunnel re-reads it on its maintenance tick.
+    public var pausedUntil: Date? {
+        get {
+            let t = defaults.double(forKey: Keys.pausedUntil)
+            guard t > 0 else { return nil }
+            let date = Date(timeIntervalSince1970: t)
+            return date > Date() ? date : nil
+        }
+        nonmutating set {
+            defaults.set(newValue?.timeIntervalSince1970 ?? 0, forKey: Keys.pausedUntil)
+        }
+    }
+
+    /// Mirror of the tunnel's connected state, written by the provider and
+    /// the VPN control helper so widgets and the Control Center toggle can
+    /// show the right state without loading the VPN manager.
+    public var protectionActive: Bool {
+        get { defaults.bool(forKey: Keys.protectionActive) }
+        nonmutating set { defaults.set(newValue, forKey: Keys.protectionActive) }
     }
 }

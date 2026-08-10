@@ -1,0 +1,6 @@
+#include "Shared.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(BUNDLE_ID_PREFIX).iblocker.widgets
+INFOPLIST_FILE = Widgets/Info.plist
+CODE_SIGN_ENTITLEMENTS = Widgets/IBlockerWidgets.entitlements
+SKIP_INSTALL = YES
