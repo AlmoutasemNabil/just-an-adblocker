@@ -152,6 +152,10 @@ public struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .onAppear {
+                // The Blocking Test screen can switch the strategy too.
+                relayStrategy = AppEnvironment.settings.relayStrategy
+            }
         }
     }
 
@@ -162,7 +166,9 @@ public struct SettingsView: View {
                 relayStrategy = strategy
                 AppEnvironment.settings.relayStrategy = strategy
                 Task {
-                    await lists.setRelayBlock(enabled: strategy == .blockDomains)
+                    // Auto-suspend keeps the domain blocks too (belt + braces —
+                    // Private Relay can't run beside a full VPN anyway).
+                    await lists.setRelayBlock(enabled: strategy != .keepRelay)
                     // Route presentation only applies at tunnel start.
                     if tunnel.isOn {
                         await tunnel.disable()

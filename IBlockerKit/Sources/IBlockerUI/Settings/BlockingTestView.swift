@@ -50,10 +50,20 @@ struct BlockingTestView: View {
     ]
     @State private var isRunning = false
 
+    /// The headline verdict is decided by the ad-domain probes (the actual
+    /// measure). Relay rows report separately below — a reachable relay is a
+    /// warning with an action, never a scary "NOT blocked" while ads are dead.
     private var verdict: Bool? {
-        let results = probes.compactMap(\.passed)
-        guard results.count == probes.count else { return nil }
+        let adProbes = probes.filter { !$0.isRelayProbe }
+        let results = adProbes.compactMap(\.passed)
+        guard results.count == adProbes.count else { return nil }
         return results.allSatisfy { $0 }
+    }
+
+    /// Relay block is ON but the relay still resolved — usually a cached
+    /// answer from before the block, occasionally iOS sidestepping DNS.
+    private var relayDodgedBlock: Bool {
+        probes.contains { $0.isRelayProbe && !$0.informational && $0.passed == false }
     }
 
     var body: some View {
@@ -129,6 +139,33 @@ struct BlockingTestView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
+        if relayDodgedBlock {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("""
+                Apple's relay answered despite the block — usually a cached address \
+                from before the block was on (toggle protection off/on, or reboot \
+                once). If it persists, Auto-suspend mode shuts the relay down at the \
+                OS level instead of relying on DNS.
+                """, systemImage: "exclamationmark.triangle")
+                    .font(.footnote)
+                    .foregroundStyle(.orange)
+                Button("Switch to Auto-suspend mode") {
+                    Task { await switchToAutoSuspend() }
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+        }
+    }
+
+    private func switchToAutoSuspend() async {
+        AppEnvironment.settings.relayStrategy = .autoSuspend
+        await lists.setRelayBlock(enabled: true)  // belt + braces: keep domain blocks too
+        if tunnel.isOn {
+            await tunnel.disable()
+            await tunnel.enable()
+        }
+        await run()
     }
 
     @ViewBuilder
@@ -165,6 +202,9 @@ struct BlockingTestView: View {
                     ProgressView().controlSize(.small)
                 case .some(true):
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                case .some(false) where probe.isRelayProbe:
+                    // Warning, not failure: the relay row doesn't decide the verdict.
+                    Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
                 case .some(false):
                     Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
                 }
@@ -184,6 +224,9 @@ struct BlockingTestView: View {
         case .unreachable(let reason):
             return "\(probe.label) — unreachable (\(reason))"
         case .resolved(let addresses):
+            if probe.isRelayProbe {
+                return "\(probe.label) — still resolving (likely cached; see note above)"
+            }
             return "\(probe.label) — resolves to \(addresses.first ?? "?")"
         }
     }

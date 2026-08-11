@@ -30,7 +30,7 @@ public enum SeedRules {
     /// Bump whenever any bundled text changes: the app recompiles the
     /// on-device blob at launch when its stamp differs, so app updates
     /// propagate new built-in rules without waiting for a list refresh.
-    public static let version: UInt32 = 3
+    public static let version: UInt32 = 4
 
     public static let text = """
     ! IBlocker built-in core rules (compiled into the app)
@@ -62,6 +62,7 @@ public enum SeedRules {
     ||mask.icloud.com^
     ||mask-h2.icloud.com^
     ||mask-canary.icloud.com^
+    ||mask.apple-dns.net^
     ||doh.dns.apple.com^
     ||apple-relay.apple.com^
     ||apple-relay.cloudflare.com^

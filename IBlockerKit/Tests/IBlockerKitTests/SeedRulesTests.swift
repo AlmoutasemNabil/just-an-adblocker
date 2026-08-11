@@ -66,8 +66,11 @@ final class SeedRulesTests: XCTestCase {
     func testRelayTextParsesCleanly() {
         let parsed = FilterListParser.parse(SeedRules.relayText)
         XCTAssertEqual(parsed.skippedLines, 0, "typo in SeedRules.relayText")
-        XCTAssertEqual(parsed.blockDomains.count, 7)
+        XCTAssertEqual(parsed.blockDomains.count, 8)
         XCTAssertTrue(parsed.blockDomains.contains("mask.icloud.com"))
+        // The CNAME target iOS actually connects to — without it, blocking
+        // mask.icloud.com alone can be sidestepped.
+        XCTAssertTrue(parsed.blockDomains.contains("mask.apple-dns.net"))
         XCTAssertTrue(parsed.blockDomains.contains("apple-relay.fastly-edge.com"))
     }
 
