@@ -1,137 +1,149 @@
 # IBlocker
 
-System-wide ad blocking for iPhone and iPad. No subscriptions, no accounts, no
-telemetry — you build it yourself with your own Apple Developer account, and it
-keeps working because you own it.
+System-wide ad blocking for iPhone and iPad — including **ads inside apps**
+(AdMob and friends), which is the measure this project is built against.
+No subscriptions, no accounts, no telemetry. You build it once with your own
+Apple Developer account, and it keeps working because you own it.
 
 **How it blocks:** a local VPN (Network Extension packet tunnel) that never
 sends your traffic anywhere. It intercepts exactly one thing — DNS lookups —
 answers the ones belonging to ad/tracker domains with `0.0.0.0`, and forwards
-everything else to an encrypted upstream resolver of your choice. Every app on
-the device benefits, not just Safari.
+everything else to an encrypted upstream resolver of your choice. Every app
+on the device benefits, not just Safari.
+
+## What's inside
 
 | Layer | What it does |
 |---|---|
-| **VPN mode** (main) | On-device DNS filtering, all apps, works on cellular + Wi‑Fi |
-| **DNS profile** (`.mobileconfig`) | Blocking via a public DNS provider (AdGuard/Mullvad/NextDNS) when the VPN is off |
-| **System encrypted DNS** | Same as the profile, installed in-app via `NEDNSSettingsManager` |
-| **Safari content blocker** | Hides in-page leftovers (empty ad frames, cosmetic rules from EasyList) |
+| **VPN mode** (main) | On-device DNS filtering, all apps, Wi‑Fi + cellular, survives reboots (on-demand) |
+| **Built-in core rules** | Google/AdMob + major mobile ad SDKs compiled into the binary — blocking works from first launch, offline, and through list outages |
+| **Apple relay handling** | Three strategies for iOS's tracker relay (see below) — the loophole that lets in-app ads bypass naive DNS blockers |
+| **DNS profile** (`.mobileconfig`) | Blocking via a public DNS provider (AdGuard/Mullvad/NextDNS) whenever the VPN is off |
+| **System encrypted DNS** | Same idea, installed in-app via `NEDNSSettingsManager` |
+| **Safari content blocker** | Hides in-page leftovers (empty frames, cosmetic EasyList rules) — works even under Private Relay |
+
+Filter lists (OISD on by default; HaGeZi, StevenBlack, AdGuard DNS one tap
+away; any custom URL) are downloaded from their sources, compiled to a
+memory-mapped blob, and auto-updated. A live query log shows every DNS
+decision with one-tap allow/block, and the Dashboard charts what got blocked.
 
 ## Quick controls
 
-- **Pause**: Dashboard → Pause blocking (5 min / 15 min / 1 hour) for a
-  checkout, captcha, or link a list breaks. It re-arms itself; no need to
-  remember to turn blocking back on.
-- **Home/Lock Screen widget**: ads-blocked-today counter and protection
-  status (small, medium, and Lock Screen sizes).
-- **Control Center toggle** (iOS 18+): flip protection on/off without
-  opening the app.
-- **Siri & Shortcuts**: "Turn on IBlocker", "Pause IBlocker", "Update
-  IBlocker lists" — automatable (e.g. pause when a specific app opens).
+- **Pause** — Dashboard ▸ Pause blocking (5 min / 15 min / 1 hour) for a
+  checkout, captcha, or link a list breaks. Resumes by itself.
+- **Home/Lock Screen widget** — blocked-today counter + protection status.
+- **Control Center toggle** (iOS 18+) — flip protection without opening the app.
+- **Siri & Shortcuts** — "Turn on IBlocker", "Pause IBlocker", "Update
+  IBlocker lists"; automatable (e.g. pause when a specific app opens).
 
-Filter lists (OISD, HaGeZi, StevenBlack, AdGuard DNS, plus any custom URL) are
-downloaded straight from their sources, compiled to a memory-mapped binary
-blob, and auto-updated. A live query log shows every DNS decision with
-one-tap allow/block.
+## The acceptance test: in-app Google ads
+
+**Settings ▸ Verify blocking** (also on the Dashboard) resolves the canonical
+AdMob domains through the live system resolver — the exact path every app's
+ad SDK uses — and gives a pass/fail verdict, with `apple.com` as the
+must-not-be-blocked control. The verdict is decided by the ad domains; the
+Apple-relay probes report separately as warnings with guidance.
+
+### Why "Apple relay handling" exists
+
+iOS ships with "Limit IP Address Tracking" ON by default. It routes
+connections to known trackers (including Google's ad servers) through
+**Apple's relay**, where the tracker's hostname is resolved remotely — those
+connections never touch on-device DNS, so in-app ads can load while the ad
+domains sit "Blocked" in the log. Pick a strategy in **Settings ▸ Apple
+Private Relay**:
+
+1. **Auto-suspend while protected** — the tunnel presents itself as a full
+   VPN so iOS pauses the relay by itself while protection runs (this is what
+   commercial blockers ride on). Relay returns when protection stops.
+2. **Block relay domains** — the relay endpoints are DNS-blocked; strongest
+   guarantee, Private Relay shows "unavailable" while protection is on.
+3. **Keep Private Relay** — nothing Apple is blocked; you turn off "Limit IP
+   Address Tracking" per network instead (Settings ▸ Wi‑Fi ▸ ⓘ, and
+   Cellular ▸ Cellular Data Options). Safari keeps Apple's IP masking; Safari
+   ads stay blocked by the content blocker.
+
+See [docs/BLOCKING-MODES.md](docs/BLOCKING-MODES.md) for the full trade-offs.
 
 ## Requirements
 
-- **Paid Apple Developer account** ($99/yr). Not optional for the VPN mode:
-  Apple only grants the Network Extension entitlement to paid accounts.
-  (The profile-export and Safari-blocker parts work with free signing.)
-- Xcode 26 or newer, iOS 26 or newer on the device.
+- **Paid Apple Developer account** ($99/yr) — Apple only grants the Network
+  Extension entitlement to paid accounts. (Profile export and the Safari
+  blocker work with free signing.)
+- Xcode 26+, iOS 26+ on the device.
 
-## Build & install (one-time, ~5 minutes)
+## Build & install (~5 minutes)
 
-1. Clone this repo and open `IBlocker.xcodeproj` in Xcode.
-2. Edit **`Config/Signing.xcconfig`** — two values:
+1. Clone and open `IBlocker.xcodeproj`.
+2. Edit **`Config/Signing.xcconfig`** — your Team ID and a bundle prefix:
    ```
-   DEVELOPMENT_TEAM = ABCDE12345      // your Team ID (developer.apple.com → Membership)
-   BUNDLE_ID_PREFIX = com.yourname    // any reverse-DNS prefix you own
+   DEVELOPMENT_TEAM = ABCDE12345
+   BUNDLE_ID_PREFIX = com.yourname
    ```
-3. Xcode ▸ Settings ▸ Accounts: make sure you're signed in with that team.
-4. Select the **IBlocker** scheme, pick your iPhone, hit **Run**.
-   Automatic signing creates the App IDs, App Group and VPN entitlement
-   profiles on first build.
-5. On the phone: open the app → onboarding downloads the blocklist → tap
-   **Enable protection** → iOS asks to add a VPN configuration → **Allow**.
-
-That's it. The VPN icon appears in the status bar; ads stop resolving.
-
-### The acceptance test: in-app Google ads
-
-The measure this app is built against: **ads inside apps (AdMob & friends)
-must be blocked**, not just browser ads. Two mechanisms guarantee it:
-
-- A **built-in core ruleset compiled into the binary** (`doubleclick.net`,
-  `googlesyndication.com`, `app-measurement.com`, `admob.com`, plus the major
-  third-party mobile ad SDKs). It is merged into every compile, so blocking
-  works from first launch even if every list download fails.
-- **Settings ▸ Verify blocking** (also on the Dashboard): resolves the
-  canonical AdMob domains through the live system resolver — the exact path
-  every app's ad SDK uses — and shows a pass/fail verdict per domain, with
-  `apple.com` as the must-not-be-blocked control.
+3. Select the **IBlocker** scheme, pick your iPhone, hit **Run**. Automatic
+   signing creates the App IDs, App Group, and VPN entitlement on first build.
+4. On the phone: onboarding downloads the blocklist → **Enable protection**
+   → **Allow** the VPN prompt.
+5. Add the widget (long-press Home Screen) and the Control Center toggle
+   (Settings ▸ Control Center) if you want them.
 
 ### Verifying it works
 
-- Safari: previously ad-filled sites render without ads.
-- In the app: **Log** tab fills with blocked/allowed queries; Dashboard
-  counters climb.
-- Terminal test (any DNS tool app, or `dig` on a Mac using the phone's
-  hotspot): `dig doubleclick.net` → answer `0.0.0.0`.
-- Reboot the phone: protection resumes by itself (on-demand VPN).
-- Memory check (Xcode ▸ Debug Navigator, PacketTunnel process): should sit
-  well under 15 MB even with large lists — the blocklist is memory-mapped,
-  not loaded.
+- **Settings ▸ Verify blocking** → "In-app Google ads are BLOCKED".
+- Open a free ad-supported app or game: ad slots stay empty / "no fill".
+  (Force-quit it once first — ad SDKs cache one prefetched ad.)
+- The Log tab fills with live blocked/allowed queries; Dashboard counters climb.
+- Reboot: protection resumes by itself. PacketTunnel memory stays under
+  ~15 MB even with huge lists — the blocklist is memory-mapped, not loaded.
 
 ## Things worth knowing
 
-- **On-demand VPN**: the tunnel auto-starts on any network activity and
-  survives reboots. Toggling it off in-app disables on-demand first
-  (otherwise iOS would instantly reconnect it).
-- **Precedence**: while the VPN is connected, its DNS wins. An installed DNS
-  profile takes over automatically whenever the VPN is off — they compose
-  nicely as belt + suspenders.
-- **Apps with their own DoH** (some browsers) can bypass any DNS filter; the
-  default lists block the well-known DoH provider domains, which makes those
-  apps fall back to system DNS.
-- **iOS betas**: this project exists because a 5-year-old blocker died on a
-  beta. If the tunnel misbehaves right after an iOS beta update: reboot once,
-  then toggle protection off/on. The tunnel uses the most spec-minimal
-  Network Extension configuration possible on purpose.
-- **Known limitation**: TCP:53 is not served (we never set TC on our own
-  answers, so nothing should retry over TCP; with the default DoH upstream,
-  truncation can't happen upstream either). Fragmented UDP and DNS over
-  non-standard ports are dropped.
-- **Query log** is a fixed 4 MB ring file in the App Group. It never leaves
-  the device and can be disabled in Settings.
+- **Precedence**: while the VPN is connected its DNS wins; an installed DNS
+  profile takes over automatically whenever the VPN is off. Running both is
+  the recommended belt-and-suspenders setup.
+- **Toggling off**: the app disables on-demand before stopping, so it stays
+  off until you turn it back on.
+- **Apps with hardcoded DoH** (some browsers) can bypass any DNS filter; the
+  default lists block the major DoH endpoints, pushing them back to system DNS.
+- **iOS betas**: if the tunnel misbehaves after a beta update — reboot once,
+  toggle protection off/on. The tunnel uses the most spec-minimal Network
+  Extension configuration possible on purpose.
+- **What DNS blocking can't do**: YouTube's in-stream ads (served from the
+  same domains as the videos — nothing on iOS can split them) and per-app
+  rules (iOS doesn't tell a tunnel which app sent a packet).
+- The query log is a fixed 4 MB ring in the App Group, never leaves the
+  device, and can be disabled in Settings.
 
 ## Repository layout
 
 ```
-IBlockerKit/            Swift package — ALL logic lives here, fully unit-tested
+IBlockerKit/            Swift package — ALL logic, fully unit-tested (85 tests)
   Sources/IBlockerKit/       DNS wire codec, IP/UDP packets, rule compiler,
-                             mmap matcher, query-log ring, list updater,
-                             mobileconfig builder, EasyList converter, engine
+                             mmap matcher, seed rules, query-log ring, list
+                             updater, mobileconfig builder, EasyList converter,
+                             DNS proxy engine (with pause), shared settings
   Sources/IBlockerTunnelKit/ DoH + UDP upstream resolvers
-  Sources/IBlockerUI/        The complete SwiftUI app (iOS)
+  Sources/IBlockerUI/        The SwiftUI app: dashboard, log, lists, settings,
+                             onboarding, blocking test, App Intents, VPN control
 App/                    App target shell (@main + assets + plists)
-PacketTunnel/           NEPacketTunnelProvider extension shell
-ContentBlocker/         Safari content blocker extension shell
+PacketTunnel/           NEPacketTunnelProvider extension
+ContentBlocker/         Safari content blocker extension
+Widgets/                WidgetKit extension (status widget + Control Center toggle)
 Config/                 xcconfigs — Signing.xcconfig is the only file to edit
 docs/                   Architecture, signing, blocking-mode docs
 ```
 
-`swift test --package-path IBlockerKit` runs the full engine test suite on
-any platform, including Linux — CI does exactly that plus an unsigned
-`xcodebuild` of the app.
+`swift test --package-path IBlockerKit` runs the full engine suite on any
+platform including Linux; CI additionally does an unsigned `xcodebuild` of
+the app and all three extensions on every push.
 
 ## Roadmap
 
-- macOS app (the package is already platform-clean; needs a Mac app target +
-  system-extension packaging)
-- Punycode/IDN rule input, per-list block attribution in the log
-- Optional local HTTP server for one-tap profile install
+- DNS response cache in the tunnel (speed + battery)
+- Temporary allow ("allow for 1 hour" from the log)
+- Per-list block attribution and company grouping in stats
+- macOS app (the package is already platform-clean)
+- iCloud sync of allow/deny lists
 
 ## License
 
