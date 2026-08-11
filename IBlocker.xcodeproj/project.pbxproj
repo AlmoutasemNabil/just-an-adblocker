@@ -13,13 +13,13 @@
 		D10000000000000000000004 /* ContentBlocker.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C50000000000000000000003 /* ContentBlocker.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D10000000000000000000005 /* IBlockerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000001 /* IBlockerKit */; };
 		D10000000000000000000006 /* IBlockerUI in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000002 /* IBlockerUI */; };
+		D10000000000000000000007 /* IBlockerWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C50000000000000000000004 /* IBlockerWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D20000000000000000000001 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* PacketTunnelProvider.swift */; };
 		D20000000000000000000002 /* IBlockerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000003 /* IBlockerKit */; };
 		D20000000000000000000003 /* IBlockerTunnelKit in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000004 /* IBlockerTunnelKit */; };
 		D30000000000000000000001 /* ContentBlockerRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000001 /* ContentBlockerRequestHandler.swift */; };
 		D30000000000000000000002 /* blockerList.json in Resources */ = {isa = PBXBuildFile; fileRef = C30000000000000000000004 /* blockerList.json */; };
 		D30000000000000000000003 /* IBlockerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000005 /* IBlockerKit */; };
-		D10000000000000000000007 /* IBlockerWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C50000000000000000000004 /* IBlockerWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D40000000000000000000001 /* IBlockerWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000001 /* IBlockerWidgetBundle.swift */; };
 		D40000000000000000000002 /* StatusWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000002 /* StatusWidget.swift */; };
 		D40000000000000000000003 /* ProtectionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000003 /* ProtectionControl.swift */; };
@@ -156,18 +156,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A10000000000000000000008 /* Widgets */ = {
-			isa = PBXGroup;
-			children = (
-				C60000000000000000000001 /* IBlockerWidgetBundle.swift */,
-				C60000000000000000000002 /* StatusWidget.swift */,
-				C60000000000000000000003 /* ProtectionControl.swift */,
-				C60000000000000000000004 /* Info.plist */,
-				C60000000000000000000005 /* IBlockerWidgets.entitlements */,
-			);
-			path = Widgets;
-			sourceTree = "<group>";
-		};
 		A10000000000000000000004 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -211,6 +199,18 @@
 				C40000000000000000000006 /* Widgets.xcconfig */,
 			);
 			path = Config;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000008 /* Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				C60000000000000000000001 /* IBlockerWidgetBundle.swift */,
+				C60000000000000000000002 /* StatusWidget.swift */,
+				C60000000000000000000003 /* ProtectionControl.swift */,
+				C60000000000000000000004 /* Info.plist */,
+				C60000000000000000000005 /* IBlockerWidgets.entitlements */,
+			);
+			path = Widgets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -439,6 +439,7 @@
 				APP_GROUP_ID = group.com.almoutasem.iblocker;
 				BUNDLE_ID_PREFIX = com.almoutasem;
 				DEVELOPMENT_TEAM = ABCDE12345;
+				INFOPLIST_KEY_CFBundleDisplayName = AdBlocker;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almoutasem.iblocker;
 			};
 			name = Debug;
@@ -450,6 +451,7 @@
 				APP_GROUP_ID = group.com.almoutasem.iblocker;
 				BUNDLE_ID_PREFIX = com.almoutasem;
 				DEVELOPMENT_TEAM = ABCDE12345;
+				INFOPLIST_KEY_CFBundleDisplayName = AdBlocker;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almoutasem.iblocker;
 			};
 			name = Release;
