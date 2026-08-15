@@ -7,7 +7,7 @@ import IBlockerKit
 
 struct EnableProtectionIntent: AppIntent {
     static var title: LocalizedStringResource = "Turn On Ad Blocking"
-    static var description = IntentDescription("Starts IBlocker protection.")
+    static var description = IntentDescription("Starts AdBlocker protection.")
     static var openAppWhenRun = false
 
     func perform() async throws -> some IntentResult {
@@ -18,7 +18,7 @@ struct EnableProtectionIntent: AppIntent {
 
 struct DisableProtectionIntent: AppIntent {
     static var title: LocalizedStringResource = "Turn Off Ad Blocking"
-    static var description = IntentDescription("Stops IBlocker protection.")
+    static var description = IntentDescription("Stops AdBlocker protection.")
     static var openAppWhenRun = false
 
     func perform() async throws -> some IntentResult {

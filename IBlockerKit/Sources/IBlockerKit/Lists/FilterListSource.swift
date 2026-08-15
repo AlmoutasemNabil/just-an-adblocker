@@ -46,7 +46,7 @@ public struct FilterListSource: Codable, Identifiable, Sendable, Equatable {
         FilterListSource(
             id: "hagezi-pro",
             name: "HaGeZi Multi Pro",
-            url: URL(string: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt")!,
+            url: URL(string: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt")!,
             enabled: false,
             isBuiltIn: true
         ),

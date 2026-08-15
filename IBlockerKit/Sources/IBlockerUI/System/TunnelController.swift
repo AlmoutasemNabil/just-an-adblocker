@@ -101,7 +101,7 @@ public final class TunnelController {
         proto.providerBundleIdentifier = AppEnvironment.tunnelBundleID
         proto.serverAddress = TunnelConstants.serverDescription
         manager.protocolConfiguration = proto
-        manager.localizedDescription = "IBlocker"
+        manager.localizedDescription = "AdBlocker"
         manager.onDemandRules = [NEOnDemandRuleConnect()]
 
         self.manager = manager

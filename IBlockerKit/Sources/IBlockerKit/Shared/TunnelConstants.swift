@@ -16,5 +16,5 @@ public enum TunnelConstants {
     public static let mtu = 1500
 
     /// Cosmetic "server" shown in Settings ▸ VPN.
-    public static let serverDescription = "IBlocker (on-device)"
+    public static let serverDescription = "AdBlocker (on-device)"
 }

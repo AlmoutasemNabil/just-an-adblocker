@@ -32,7 +32,7 @@ public struct OnboardingView: View {
             symbol: "shield.lefthalf.filled",
             title: "Block ads everywhere",
             text: """
-            IBlocker runs a tiny VPN that never leaves your device. \
+            AdBlocker runs a tiny VPN that never leaves your device. \
             It looks at one thing only — DNS lookups — and answers the ones \
             that belong to ad and tracking networks with "nothing here".
 
@@ -51,7 +51,7 @@ public struct OnboardingView: View {
             symbol: "arrow.down.circle",
             title: "Get the blocklist",
             text: """
-            IBlocker uses OISD — a well-maintained list that blocks ads and \
+            AdBlocker uses OISD — a well-maintained list that blocks ads and \
             trackers without breaking apps or sites. You can add more lists later.
             """
         ) {

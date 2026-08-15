@@ -101,14 +101,17 @@ private struct SourceRow: View {
                     if let fetched = metadata.lastFetched {
                         Text("updated \(fetched, style: .relative) ago")
                     }
-                    if let error = metadata.lastError {
-                        Text(error)
-                            .foregroundStyle(.orange)
-                            .lineLimit(1)
-                    }
                 }
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+
+                if let error = metadata.lastError {
+                    Label(error, systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {

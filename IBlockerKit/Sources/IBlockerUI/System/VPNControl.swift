@@ -16,12 +16,12 @@ public enum VPNControl {
         public var errorDescription: String? {
             switch self {
             case .notConfigured:
-                return "Open IBlocker once to set up protection before controlling it here."
+                return "Open AdBlocker once to set up protection before controlling it here."
             }
         }
     }
 
-    /// The existing IBlocker tunnel manager, if the user has set it up.
+    /// The existing AdBlocker tunnel manager, if the user has set it up.
     static func loadManager() async throws -> NETunnelProviderManager? {
         try await NETunnelProviderManager.loadAllFromPreferences().first
     }

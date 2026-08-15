@@ -45,7 +45,7 @@ public struct ProtectionToggle: View {
             }
         }
         .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .circle)
+        .circularGlass()
         .sensoryFeedback(.impact(weight: .medium), trigger: tunnel.isOn)
         .accessibilityLabel(tunnel.isOn ? "Turn protection off" : "Turn protection on")
         .animation(.snappy, value: tunnel.isOn)
@@ -57,6 +57,18 @@ public struct ProtectionToggle: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+    }
+}
+
+private extension View {
+    /// Liquid Glass where the OS has it; a plain circular material below iOS 26.
+    @ViewBuilder
+    func circularGlass() -> some View {
+        if #available(iOS 26.0, *) {
+            glassEffect(.regular.interactive(), in: .circle)
+        } else {
+            background(.regularMaterial, in: .circle)
+        }
     }
 }
 #endif

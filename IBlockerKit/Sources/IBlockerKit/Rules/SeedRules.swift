@@ -33,7 +33,7 @@ public enum SeedRules {
     public static let version: UInt32 = 4
 
     public static let text = """
-    ! IBlocker built-in core rules (compiled into the app)
+    ! AdBlocker built-in core rules (compiled into the app)
     ! Google in-app ads + ad measurement — the guaranteed floor
     ||doubleclick.net^
     ||googlesyndication.com^

@@ -10,7 +10,7 @@ final class MobileConfigBuilderTests: XCTestCase {
 
         XCTAssertEqual(root["PayloadType"] as? String, "Configuration")
         XCTAssertEqual(root["PayloadVersion"] as? Int, 1)
-        XCTAssertEqual(root["PayloadIdentifier"] as? String, "com.iblocker.profile.adguard")
+        XCTAssertEqual(root["PayloadIdentifier"] as? String, "com.adblocker.profile.adguard")
 
         let contents = try XCTUnwrap(root["PayloadContent"] as? [[String: Any]])
         XCTAssertEqual(contents.count, 1)

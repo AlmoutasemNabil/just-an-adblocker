@@ -44,7 +44,7 @@ public struct DashboardView: View {
                 .padding(.bottom, 32)
             }
             .background(DashboardBackground())
-            .navigationTitle("IBlocker")
+            .navigationTitle("Just an AdBlocker")
             .task {
                 await refreshLoop()
             }

@@ -27,6 +27,30 @@ public struct UpdateSummary: Sendable, Equatable {
     public init() {}
 }
 
+/// Failures we raise ourselves. Phrased for the list row a user actually
+/// reads, not for a log — `URLError`'s own text degrades to
+/// "The operation couldn't be completed. (NSURLErrorDomain error -1011.)"
+/// when the error is synthesized rather than produced by URLSession.
+public enum FilterListUpdateError: LocalizedError, Equatable {
+    case httpStatus(Int)
+    case emptyBody
+
+    public var errorDescription: String? {
+        switch self {
+        case .emptyBody:
+            return "Server returned an empty file"
+        case .httpStatus(let code):
+            switch code {
+            case 404: return "Not found (404) — the list may have moved"
+            case 403: return "Access denied (403)"
+            case 429: return "Rate limited — try again later"
+            case 500...599: return "Server error (\(code))"
+            default: return "Unexpected response (\(code))"
+            }
+        }
+    }
+}
+
 /// Downloads raw list texts into the App Group cache with conditional GETs.
 /// The network layer is injected as a closure so tests never touch the wire.
 public struct FilterListUpdater: Sendable {
@@ -85,7 +109,7 @@ public struct FilterListUpdater: Sendable {
                 let result = try await fetch(request)
                 switch result.statusCode {
                 case 200:
-                    guard !result.body.isEmpty else { throw URLError(.zeroByteResource) }
+                    guard !result.body.isEmpty else { throw FilterListUpdateError.emptyBody }
                     try result.body.write(to: paths.cachedListURL(sourceID: source.id), options: .atomic)
                     metadata.etag = result.etag
                     metadata.lastModified = result.lastModified
@@ -97,7 +121,7 @@ public struct FilterListUpdater: Sendable {
                     metadata.lastError = nil
                     summary.unchangedSourceIDs.append(source.id)
                 default:
-                    throw URLError(.badServerResponse)
+                    throw FilterListUpdateError.httpStatus(result.statusCode)
                 }
             } catch {
                 metadata.lastError = shortDescription(of: error)
@@ -110,9 +134,24 @@ public struct FilterListUpdater: Sendable {
     }
 
     private func shortDescription(of error: Error) -> String {
-        if let urlError = error as? URLError {
-            return urlError.localizedDescription
+        if let updateError = error as? FilterListUpdateError {
+            return updateError.errorDescription ?? "Update failed"
         }
-        return String(describing: error)
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet: return "No internet connection"
+            case .timedOut: return "Timed out"
+            case .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
+                return "Can't reach the server"
+            case .networkConnectionLost: return "Connection lost"
+            case .secureConnectionFailed, .serverCertificateUntrusted:
+                return "Secure connection failed"
+            case .dataNotAllowed: return "Cellular data not allowed"
+            case .zeroByteResource: return "Server returned an empty file"
+            case .badServerResponse: return "Unexpected response from the server"
+            default: return "Download failed (\(urlError.code.rawValue))"
+            }
+        }
+        return error.localizedDescription
     }
 }
