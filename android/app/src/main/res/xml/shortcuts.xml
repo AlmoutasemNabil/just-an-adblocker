@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shield"
+        android:shortcutId="enable"
+        android:shortcutLongLabel="@string/shortcut_enable_long"
+        android:shortcutShortLabel="@string/shortcut_enable_short">
+        <intent
+            android:action="com.iblocker.android.action.ENABLE"
+            android:targetClass="com.iblocker.android.quickaction.QuickActionActivity"
+            android:targetPackage="com.iblocker.android" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shield"
+        android:shortcutId="pause"
+        android:shortcutLongLabel="@string/shortcut_pause_long"
+        android:shortcutShortLabel="@string/shortcut_pause_short">
+        <intent
+            android:action="com.iblocker.android.action.PAUSE_15"
+            android:targetClass="com.iblocker.android.quickaction.QuickActionActivity"
+            android:targetPackage="com.iblocker.android" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shield"
+        android:shortcutId="update-lists"
+        android:shortcutLongLabel="@string/shortcut_update_long"
+        android:shortcutShortLabel="@string/shortcut_update_short">
+        <intent
+            android:action="com.iblocker.android.action.UPDATE_LISTS"
+            android:targetClass="com.iblocker.android.quickaction.QuickActionActivity"
+            android:targetPackage="com.iblocker.android" />
+    </shortcut>
+</shortcuts>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">IBlocker</string>
+
+    <string name="tile_label">Ad blocking</string>
+    <string name="tile_on">On</string>
+    <string name="tile_off">Off</string>
+    <string name="widget_label">IBlocker status</string>
+
+    <string name="notification_channel">Protection</string>
+    <string name="notification_channel_description">Shows that on-device DNS filtering is running.</string>
+    <string name="notification_title">Ad blocking is on</string>
+    <string name="notification_blocked_today">%1$s blocked today</string>
+    <string name="notification_paused">Paused — everything is being let through</string>
+
+    <string name="action_pause_5">Pause 5 min</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_turn_off">Turn off</string>
+
+    <string name="toast_paused">Ad blocking paused for %1$d minutes</string>
+    <string name="toast_updating_lists">Updating filter lists…</string>
+
+    <string name="shortcut_enable_short">Turn on</string>
+    <string name="shortcut_enable_long">Turn on ad blocking</string>
+    <string name="shortcut_pause_short">Pause 15 min</string>
+    <string name="shortcut_pause_long">Pause ad blocking for 15 minutes</string>
+    <string name="shortcut_update_short">Update lists</string>
+    <string name="shortcut_update_long">Update filter lists</string>
+</resources>

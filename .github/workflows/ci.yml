@@ -51,3 +51,23 @@ jobs:
           CODE_SIGNING_ALLOWED=NO
           CODE_SIGN_IDENTITY=""
           DEVELOPMENT_TEAM=""
+
+  test-android:
+    name: gradle test + assemble (Android)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Engine tests (pure JVM, no Android SDK needed)
+        run: ./gradlew --no-daemon :core:test
+      - name: App unit tests
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+      - name: Build the app
+        run: ./gradlew --no-daemon :app:assembleDebug

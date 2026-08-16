@@ -1,15 +1,24 @@
 # IBlocker
 
-System-wide ad blocking for iPhone and iPad — including **ads inside apps**
-(AdMob and friends), which is the measure this project is built against.
-No subscriptions, no accounts, no telemetry. You build it once with your own
-Apple Developer account, and it keeps working because you own it.
+System-wide ad blocking for iPhone, iPad **and Android** — including **ads
+inside apps** (AdMob and friends), which is the measure this project is built
+against. No subscriptions, no accounts, no telemetry. You build it once
+yourself, and it keeps working because you own it.
 
-**How it blocks:** a local VPN (Network Extension packet tunnel) that never
-sends your traffic anywhere. It intercepts exactly one thing — DNS lookups —
-answers the ones belonging to ad/tracker domains with `0.0.0.0`, and forwards
-everything else to an encrypted upstream resolver of your choice. Every app
-on the device benefits, not just Safari.
+**How it blocks:** a local VPN (Network Extension packet tunnel on iOS,
+`VpnService` on Android) that never sends your traffic anywhere. It intercepts
+exactly one thing — DNS lookups — answers the ones belonging to ad/tracker
+domains with `0.0.0.0`, and forwards everything else to an encrypted upstream
+resolver of your choice. Every app on the device benefits, not just the
+browser.
+
+**Two platforms, one design.** The iOS app lives at the repository root; the
+Android app lives in [`android/`](android/). Both compile the same
+memory-mapped blocklist format, write the same query-log ring, and are built
+against the same acceptance test. Everything below describes the iOS build —
+see **[android/README.md](android/README.md)** to build and install the
+Android one, and **[docs/ANDROID.md](docs/ANDROID.md)** for the
+component-by-component mapping between them.
 
 ## What's inside
 
@@ -130,12 +139,19 @@ PacketTunnel/           NEPacketTunnelProvider extension
 ContentBlocker/         Safari content blocker extension
 Widgets/                WidgetKit extension (status widget + Control Center toggle)
 Config/                 xcconfigs — Signing.xcconfig is the only file to edit
-docs/                   Architecture, signing, blocking-mode docs
+android/                The Android app (see android/README.md)
+  core/                      Kotlin/JVM engine — the IBlockerKit port,
+                             unit-tested (90 tests), no Android SDK needed
+  app/                       VpnService, DoH/UDP upstreams, Compose UI,
+                             Quick Settings tile, Glance widget, WorkManager
+docs/                   Architecture, signing, blocking-mode, Android docs
 ```
 
 `swift test --package-path IBlockerKit` runs the full engine suite on any
-platform including Linux; CI additionally does an unsigned `xcodebuild` of
-the app and all three extensions on every push.
+platform including Linux; `cd android && ./gradlew :core:test` does the same
+for the Kotlin engine. CI additionally does an unsigned `xcodebuild` of the
+iOS app and all three extensions, plus an Android `assembleDebug`, on every
+push.
 
 ## Roadmap
 
@@ -144,6 +160,8 @@ the app and all three extensions on every push.
 - Per-list block attribution and company grouping in stats
 - macOS app (the package is already platform-clean)
 - iCloud sync of allow/deny lists
+- Android: full-tunnel mode (userspace TCP/UDP forwarding) to close the
+  hardcoded-DoH hole for good
 
 ## License
 

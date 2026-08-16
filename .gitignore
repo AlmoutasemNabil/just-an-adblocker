@@ -6,3 +6,10 @@ DerivedData/
 .swiftpm/
 *.xcresult
 Config/Signing.local.xcconfig
+
+# Android
+android/.gradle/
+android/build/
+android/*/build/
+android/local.properties
+.kotlin/
