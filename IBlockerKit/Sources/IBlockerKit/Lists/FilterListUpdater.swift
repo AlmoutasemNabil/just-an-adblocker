@@ -91,6 +91,9 @@ public struct FilterListUpdater: Sendable {
         for source in state.sources where source.enabled {
             // Bundled rulesets ship in the binary — nothing to fetch.
             if SeedRules.bundledText(for: source.id) != nil { continue }
+            // A hidden source must not download either: its failures would be
+            // recorded where no one can see or act on them.
+            if FeatureFlags.isHidden(sourceID: source.id) { continue }
 
             var metadata = state.metadata[source.id] ?? FilterListMetadata()
             var request = URLRequest(url: source.url)

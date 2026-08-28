@@ -37,6 +37,12 @@ public final class FilterListsViewModel {
         }
     }
 
+    /// Sources the list screen shows. Hidden sources stay in `state` so their
+    /// stored enablement survives the flag being flipped back.
+    public var visibleSources: [FilterListSource] {
+        state.sources.filter { !FeatureFlags.isHidden(sourceID: $0.id) }
+    }
+
     /// The "Block Apple tracker relay" bundled source, surfaced in Settings
     /// as the Private Relay compatibility choice.
     public var isRelayBlockEnabled: Bool {

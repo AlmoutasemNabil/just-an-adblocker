@@ -12,6 +12,57 @@ final class FilterListUpdaterTests: XCTestCase {
         return state
     }
 
+    /// A built-in whose upstream URL moved must be repaired by the app update,
+    /// not left pinned to the dead URL saved on disk.
+    func testLoadAdoptsBuiltInURLFromCode() throws {
+        let paths = AppGroupPaths(containerURL: try makeTempDirectory())
+        try paths.ensureDirectories()
+        guard let current = FilterListSource.builtIn.first(where: { $0.id == FilterListSource.hageziID }) else {
+            return XCTFail("hagezi built-in missing")
+        }
+
+        var stale = FilterListState()
+        let index = try XCTUnwrap(stale.sources.firstIndex { $0.id == FilterListSource.hageziID })
+        stale.sources[index].url = URL(string: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt")!
+        stale.metadata[FilterListSource.hageziID] = {
+            var meta = FilterListMetadata()
+            meta.etag = "stale"
+            meta.lastError = "Not found (404) — the list may have moved"
+            return meta
+        }()
+        try stale.save(to: paths.filterStateURL)
+
+        let loaded = FilterListState.load(from: paths.filterStateURL)
+        let repaired = try XCTUnwrap(loaded.sources.first { $0.id == FilterListSource.hageziID })
+        XCTAssertEqual(repaired.url, current.url)
+        // The old resource's validators and failure don't describe the new one.
+        XCTAssertNil(loaded.metadata[FilterListSource.hageziID]?.etag)
+        XCTAssertNil(loaded.metadata[FilterListSource.hageziID]?.lastError)
+    }
+
+    /// Hidden sources must not download: a failure recorded there is invisible.
+    func testHiddenSourceIsNotFetched() async throws {
+        try XCTSkipIf(FeatureFlags.hiddenSourceIDs.isEmpty, "Nothing is hidden")
+        let paths = AppGroupPaths(containerURL: try makeTempDirectory())
+        let hiddenID = try XCTUnwrap(FeatureFlags.hiddenSourceIDs.first { id in
+            SeedRules.bundledText(for: id) == nil
+        })
+
+        var state = FilterListState()
+        let index = try XCTUnwrap(state.sources.firstIndex { $0.id == hiddenID })
+        state.sources[index].enabled = true
+        state.sources = [state.sources[index]]
+
+        let updater = FilterListUpdater(paths: paths) { request in
+            XCTFail("hidden source was fetched: \(request.url?.absoluteString ?? "?")")
+            return FetchResult(statusCode: 200, body: Data("||ads.example.com^\n".utf8))
+        }
+        let summary = await updater.update(state: &state)
+
+        XCTAssertTrue(summary.updatedSourceIDs.isEmpty)
+        XCTAssertTrue(summary.failedSourceIDs.isEmpty)
+    }
+
     func testDownloadCacheAndConditionalGet() async throws {
         let paths = AppGroupPaths(containerURL: try makeTempDirectory())
         var state = makeState()

@@ -43,7 +43,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         self.engine = engine
 
         let networkSettings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress: "127.0.0.1")
-        let relayStrategy = settings?.relayStrategy ?? .blockDomains
+        let relayStrategy = settings?.effectiveRelayStrategy ?? .blockDomains
 
         let ipv4 = NEIPv4Settings(
             addresses: [TunnelConstants.tunnelIPv4],

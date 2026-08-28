@@ -39,15 +39,25 @@ struct BlockingTestView: View {
 
     @Environment(TunnelController.self) private var tunnel
     @Environment(FilterListsViewModel.self) private var lists
-    @State private var probes: [ProbeItem] = [
-        ProbeItem(host: "googleads.g.doubleclick.net", label: "Google AdMob ad server", expectBlocked: true),
-        ProbeItem(host: "pagead2.googlesyndication.com", label: "Google ad delivery", expectBlocked: true),
-        ProbeItem(host: "app-measurement.com", label: "Google ad measurement", expectBlocked: true),
-        ProbeItem(host: "adservice.google.com", label: "Google ad service", expectBlocked: true),
-        ProbeItem(host: "mask.icloud.com", label: "Apple tracker relay (ad-leak path)", expectBlocked: true, isRelayProbe: true),
-        ProbeItem(host: "apple-relay.fastly-edge.com", label: "Apple relay egress (ad-leak path)", expectBlocked: true, isRelayProbe: true),
-        ProbeItem(host: "apple.com", label: "Control — must NOT be blocked", expectBlocked: false),
-    ]
+    @State private var probes: [ProbeItem] = Self.defaultProbes
+
+    /// The relay probes only make sense alongside the relay controls, so they
+    /// travel with the same flag. Dropping them also removes the relay banners
+    /// and the auto-suspend button, which key off `isRelayProbe`.
+    static var defaultProbes: [ProbeItem] {
+        var items: [ProbeItem] = [
+            ProbeItem(host: "googleads.g.doubleclick.net", label: "Google AdMob ad server", expectBlocked: true),
+            ProbeItem(host: "pagead2.googlesyndication.com", label: "Google ad delivery", expectBlocked: true),
+            ProbeItem(host: "app-measurement.com", label: "Google ad measurement", expectBlocked: true),
+            ProbeItem(host: "adservice.google.com", label: "Google ad service", expectBlocked: true),
+        ]
+        if FeatureFlags.showAppleRelayControls {
+            items.append(ProbeItem(host: "mask.icloud.com", label: "Apple tracker relay (ad-leak path)", expectBlocked: true, isRelayProbe: true))
+            items.append(ProbeItem(host: "apple-relay.fastly-edge.com", label: "Apple relay egress (ad-leak path)", expectBlocked: true, isRelayProbe: true))
+        }
+        items.append(ProbeItem(host: "apple.com", label: "Control — must NOT be blocked", expectBlocked: false))
+        return items
+    }
     @State private var isRunning = false
 
     /// The headline verdict is decided by the ad-domain probes (the actual

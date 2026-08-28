@@ -23,7 +23,7 @@ public struct FilterListsView: View {
                 }
 
                 Section("Blocklists") {
-                    ForEach(lists.state.sources) { source in
+                    ForEach(lists.visibleSources) { source in
                         SourceRow(source: source)
                     }
                 }

@@ -90,7 +90,7 @@ public enum SeedRules {
     /// enabled (fresh installs, upgrades from older versions).
     public static func fallbackHashes(state: FilterListState) -> Set<UInt64> {
         var result: Set<UInt64> = []
-        for (id, ruleText) in bundledTexts {
+        for (id, ruleText) in bundledTexts where !FeatureFlags.isHidden(sourceID: id) {
             let enabled = state.sources.first { $0.id == id }?.enabled ?? true
             if enabled {
                 result.formUnion(hashes(of: ruleText))
