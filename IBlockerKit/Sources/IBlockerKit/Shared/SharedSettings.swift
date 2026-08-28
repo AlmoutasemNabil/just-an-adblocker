@@ -80,6 +80,13 @@ public struct SharedSettings: @unchecked Sendable {
         nonmutating set { defaults.set(newValue.rawValue, forKey: Keys.relayStrategy) }
     }
 
+    /// What the tunnel should actually apply. While the relay UI is hidden a
+    /// stored choice can't be changed back, so it reports the neutral default
+    /// and leaves the stored value untouched. See `FeatureFlags`.
+    public var effectiveRelayStrategy: RelayStrategy {
+        FeatureFlags.showAppleRelayControls ? relayStrategy : .blockDomains
+    }
+
     /// When set to a future instant, the tunnel forwards everything without
     /// blocking (a temporary "let this through" for a broken checkout,
     /// captcha, or link). Any process — app, widget, App Intent — can write

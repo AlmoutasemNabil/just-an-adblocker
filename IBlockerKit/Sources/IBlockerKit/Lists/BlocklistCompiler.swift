@@ -22,7 +22,9 @@ public enum BlocklistCompiler {
         var blockHashes = Set<UInt64>()
         var listAllowHashes = Set<UInt64>()
 
-        for source in state.sources where source.enabled {
+        // A hidden source must not keep filtering from behind the curtain: a
+        // relay list enabled before the UI was hidden is skipped, not compiled.
+        for source in state.sources where source.enabled && !FeatureFlags.isHidden(sourceID: source.id) {
             let text: String
             if let bundled = SeedRules.bundledText(for: source.id) {
                 text = bundled

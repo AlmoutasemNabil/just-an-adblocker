@@ -39,18 +39,20 @@ public struct SettingsView: View {
                     Text("Resolves the Google in-app ad domains through the live tunnel and shows whether an ad SDK could reach them.")
                 }
 
-                Section {
-                    Picker("Relay handling", selection: relayStrategyBinding) {
-                        Text("Auto-suspend while protected").tag(RelayStrategy.autoSuspend)
-                        Text("Block relay domains").tag(RelayStrategy.blockDomains)
-                        Text("Keep Private Relay").tag(RelayStrategy.keepRelay)
+                if FeatureFlags.showAppleRelayControls {
+                    Section {
+                        Picker("Relay handling", selection: relayStrategyBinding) {
+                            Text("Auto-suspend while protected").tag(RelayStrategy.autoSuspend)
+                            Text("Block relay domains").tag(RelayStrategy.blockDomains)
+                            Text("Keep Private Relay").tag(RelayStrategy.keepRelay)
+                        }
+                        .pickerStyle(.inline)
+                        .labelsHidden()
+                    } header: {
+                        Text("Apple Private Relay")
+                    } footer: {
+                        Text(relayFooter)
                     }
-                    .pickerStyle(.inline)
-                    .labelsHidden()
-                } header: {
-                    Text("Apple Private Relay")
-                } footer: {
-                    Text(relayFooter)
                 }
 
                 Section {

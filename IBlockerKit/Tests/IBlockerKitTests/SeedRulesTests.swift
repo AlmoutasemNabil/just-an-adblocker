@@ -83,8 +83,9 @@ final class SeedRulesTests: XCTestCase {
 
         XCTAssertEqual(matcher.verdict(for: "googleads.g.doubleclick.net"), .block)
         XCTAssertEqual(matcher.verdict(for: "pagead2.googlesyndication.com"), .block)
-        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .block)
-        XCTAssertEqual(matcher.verdict(for: "apple-relay.fastly-edge.com"), .block)
+        // Apple's relay is never part of the floor while it is suppressed.
+        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .none)
+        XCTAssertEqual(matcher.verdict(for: "apple-relay.fastly-edge.com"), .none)
         XCTAssertEqual(matcher.verdict(for: "apple.com"), .none)
         XCTAssertEqual(matcher.verdict(for: "icloud.com"), .none)
         XCTAssertGreaterThan(matcher.blockedEntryCount, 0)
@@ -103,8 +104,15 @@ final class SeedRulesTests: XCTestCase {
         XCTAssertTrue(fallback.contains(FNV1a.hash64("doubleclick.net")))
 
         // Sources missing from saved state (older builds) count as enabled.
+        state.sources.removeAll { $0.id == SeedRules.sourceID }
+        XCTAssertTrue(SeedRules.fallbackHashes(state: state).contains(FNV1a.hash64("doubleclick.net")))
+
+        // A suppressed source stays out even under that same default.
         state.sources.removeAll { $0.id == SeedRules.relaySourceID }
-        XCTAssertTrue(SeedRules.fallbackHashes(state: state).contains(FNV1a.hash64("mask.icloud.com")))
+        XCTAssertEqual(
+            SeedRules.fallbackHashes(state: state).contains(FNV1a.hash64("mask.icloud.com")),
+            FeatureFlags.showAppleRelayControls
+        )
     }
 
     func testUserAllowBeatsFallback() throws {
@@ -113,7 +121,8 @@ final class SeedRulesTests: XCTestCase {
                                     to: paths.userAllowlistURL)
         let matcher = paths.loadMatcher(builtInBlockHashes: SeedRules.fallbackHashes(state: FilterListState()))
         XCTAssertEqual(matcher.verdict(for: "googleads.g.doubleclick.net"), .allow)
-        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .block)
+        // Relay rules ship disabled and suppressed — the fallback leaves them out.
+        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .none)
     }
 
     func testCompileStampsSeedVersion() throws {
@@ -124,9 +133,10 @@ final class SeedRulesTests: XCTestCase {
         _ = try BlocklistCompiler.compile(state: &state, paths: paths)
         XCTAssertEqual(state.compiledSeedVersion, SeedRules.version)
 
-        // The compiled blob now carries the relay rules too.
+        // The relay ruleset is not compiled in while it is suppressed.
         let matcher = paths.loadMatcher()
-        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .block)
+        XCTAssertEqual(matcher.verdict(for: "mask.icloud.com"), .none)
+        XCTAssertEqual(matcher.verdict(for: "googleads.g.doubleclick.net"), .block)
     }
 
     func testLegacyStateWithoutSeedVersionDecodes() throws {

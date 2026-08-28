@@ -438,7 +438,7 @@
 			buildSettings = {
 				APP_GROUP_ID = group.com.almoutasem.iblocker;
 				BUNDLE_ID_PREFIX = com.almoutasem;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = ABCDE12345;
 				INFOPLIST_KEY_CFBundleDisplayName = AdBlocker;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almoutasem.iblocker;
@@ -451,7 +451,7 @@
 			buildSettings = {
 				APP_GROUP_ID = group.com.almoutasem.iblocker;
 				BUNDLE_ID_PREFIX = com.almoutasem;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = ABCDE12345;
 				INFOPLIST_KEY_CFBundleDisplayName = AdBlocker;
 				PRODUCT_BUNDLE_IDENTIFIER = com.almoutasem.iblocker;

@@ -27,6 +27,18 @@ final class SharedSettingsTests: XCTestCase {
         XCTAssertEqual(settings.relayStrategy, .blockDomains)
     }
 
+    /// Storage round-trips whatever it is given, but the tunnel must not act on
+    /// a stored choice the user has no UI to change back.
+    func testEffectiveRelayStrategyIgnoresStoredValueWhileControlsHidden() throws {
+        try XCTSkipIf(FeatureFlags.showAppleRelayControls, "Relay controls are visible")
+        let (settings, suite) = makeSettings()
+        defer { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
+
+        settings.relayStrategy = .autoSuspend
+        XCTAssertEqual(settings.relayStrategy, .autoSuspend)
+        XCTAssertEqual(settings.effectiveRelayStrategy, .blockDomains)
+    }
+
     func testUpstreamConfigRoundTrip() {
         let (settings, suite) = makeSettings()
         defer { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }

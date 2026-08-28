@@ -3,6 +3,8 @@ import Foundation
 /// A DNS blocklist source. Built-ins ship with the app; users can add any
 /// URL serving hosts/domain/AdGuard-format text.
 public struct FilterListSource: Codable, Identifiable, Sendable, Equatable {
+    public static let hageziID = "hagezi-pro"
+
     public var id: String
     public var name: String
     public var url: URL
@@ -33,7 +35,8 @@ public struct FilterListSource: Codable, Identifiable, Sendable, Equatable {
             id: SeedRules.relaySourceID,
             name: "Block Apple tracker relay (in-app ad fix)",
             url: URL(string: "https://bundled.invalid/apple-relay")!,
-            enabled: true,
+            // Opt-in, not default-on: see FeatureFlags.showAppleRelayControls.
+            enabled: false,
             isBuiltIn: true
         ),
         FilterListSource(
@@ -44,7 +47,7 @@ public struct FilterListSource: Codable, Identifiable, Sendable, Equatable {
             isBuiltIn: true
         ),
         FilterListSource(
-            id: "hagezi-pro",
+            id: FilterListSource.hageziID,
             name: "HaGeZi Multi Pro",
             url: URL(string: "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt")!,
             enabled: false,
@@ -121,6 +124,24 @@ public struct FilterListState: Codable, Sendable, Equatable {
         let known = Set(state.sources.map(\.id))
         for builtIn in FilterListSource.builtIn where !known.contains(builtIn.id) {
             state.sources.append(builtIn)
+        }
+
+        // A built-in's URL and name live in code, not in saved state: when a
+        // list moves upstream, an app update has to be able to repair it.
+        // Only the user's on/off choice is read back from disk.
+        let definitions = Dictionary(uniqueKeysWithValues: FilterListSource.builtIn.map { ($0.id, $0) })
+        for index in state.sources.indices {
+            guard let definition = definitions[state.sources[index].id] else { continue }
+            if state.sources[index].url != definition.url {
+                // Different resource — conditional-GET state and the old
+                // failure no longer describe it.
+                state.metadata[definition.id]?.etag = nil
+                state.metadata[definition.id]?.lastModified = nil
+                state.metadata[definition.id]?.lastError = nil
+            }
+            state.sources[index].url = definition.url
+            state.sources[index].name = definition.name
+            state.sources[index].isBuiltIn = true
         }
         return state
     }
