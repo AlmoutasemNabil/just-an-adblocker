@@ -10,7 +10,7 @@ keeps working because you own it.
 The name is the promise: it is *just* an ad blocker. It will never grow a
 subscription, a VPN upsell, an account system, or a telemetry pipeline.
 
-[![CI](https://github.com/AlmoutasemNabil/IBlocker/actions/workflows/ci.yml/badge.svg)](https://github.com/AlmoutasemNabil/IBlocker/actions/workflows/ci.yml)
+[![CI](https://github.com/AlmoutasemNabil/just-an-adblocker/actions/workflows/ci.yml/badge.svg)](https://github.com/AlmoutasemNabil/just-an-adblocker/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20iPadOS%20%7C%20Android-lightgrey.svg)](#build-it-yourself)
 [![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen.svg)](#privacy-is-the-whole-point)
