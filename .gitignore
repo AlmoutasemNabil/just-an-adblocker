@@ -15,3 +15,8 @@ android/build/
 android/*/build/
 android/local.properties
 .kotlin/
+
+# Android release signing (never commit these)
+android/app/keystore.properties
+*.jks
+*.keystore

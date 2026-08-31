@@ -1,8 +1,23 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+
+// Release signing. Create app/keystore.properties (gitignored) with
+// storeFile/storePassword/keyAlias/keyPassword to sign a release build.
+// Without it, assembleRelease falls back to the debug key -- fine for your own
+// device, but NEVER publish that APK: the Android debug keystore is a shared,
+// publicly known key, so anyone could sign an "update" the OS accepts as this
+// app.
+val keystorePropsFile = rootProject.file("app/keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) keystorePropsFile.inputStream().use { load(it) }
+}
+val hasReleaseKey = keystoreProps.getProperty("storeFile") != null
 
 android {
     namespace = "com.iblocker.android"
@@ -16,14 +31,31 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Debug signing so `gradle assembleRelease` produces an installable
-            // APK for the person who built it — there is no store release.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKey) {
+                signingConfigs.getByName("release")
+            } else {
+                logger.warn(
+                    "WARNING: no app/keystore.properties -- signing release with the " +
+                        "DEBUG key. Do not publish this APK."
+                )
+                signingConfigs.getByName("debug")
+            }
         }
         debug {
             // No applicationIdSuffix: the launcher shortcuts declared in
