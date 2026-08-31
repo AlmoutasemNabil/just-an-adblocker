@@ -61,28 +61,6 @@ everything — and you can't audit the binary you're trusting.
 Just an AdBlocker's answer is to never be in a position to abuse it. There is no
 server to send it to.
 
-## How it compares
-
-| | Just an AdBlocker | Commercial blocker apps | Pi-hole | Hosted DNS filters |
-|---|---|---|---|---|
-| Blocks ads **inside apps** | ✅ | ✅ | ✅ (on your network) | ✅ |
-| Works on cellular | ✅ | ✅ | ❌ LAN only | ✅ |
-| Cost | **Free**, MIT | Paid, usually a subscription | Free + hardware | Free tier, then paid |
-| Where filtering happens | **On your device** | Varies by app | Your own hardware | The provider's servers |
-| Source you can audit | ✅ Everything | Typically closed | ✅ | Typically closed |
-| Account required | **No** | Often | No | Usually |
-| Needs a server or Pi | No | No | **Yes** | No |
-| iOS + Android, one codebase | ✅ | Separate apps | n/a | n/a |
-
-Deliberately no vendor names or prices in that table — they change, and I'd
-rather not misrepresent anyone's product. Check the current terms of whatever
-you're comparing against.
-
-The trade: you need a paid Apple Developer account ($99/yr) to build the iOS
-version yourself, because Apple only grants the VPN entitlement to paid
-accounts. Android has no such cost. If you don't already have that account,
-a commercial blocker is cheaper — and that's a fair reason to pick one.
-
 ---
 
 ## Privacy is the whole point
