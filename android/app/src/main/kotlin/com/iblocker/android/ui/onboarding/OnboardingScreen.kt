@@ -54,7 +54,7 @@ fun OnboardingScreen(onRequestProtection: () -> Unit, onFinished: () -> Unit) {
         0 -> Page(
             icon = Icons.Filled.Shield,
             title = "Block ads everywhere",
-            text = "IBlocker runs a tiny VPN that never leaves your device. It looks at one thing only — " +
+            text = "Just an AdBlocker runs a tiny VPN that never leaves your device. It looks at one thing only — " +
                 "DNS lookups — and answers the ones that belong to ad and tracking networks with " +
                 "\"nothing here\".\n\nEvery app benefits, not just your browser. No subscription, no " +
                 "account, no traffic sent anywhere.",
@@ -65,7 +65,7 @@ fun OnboardingScreen(onRequestProtection: () -> Unit, onFinished: () -> Unit) {
         1 -> Page(
             icon = Icons.Filled.CloudDownload,
             title = "Get the blocklist",
-            text = "IBlocker uses OISD — a well-maintained list that blocks ads and trackers without " +
+            text = "Just an AdBlocker uses OISD — a well-maintained list that blocks ads and trackers without " +
                 "breaking apps or sites. You can add more lists later.",
         ) {
             when {

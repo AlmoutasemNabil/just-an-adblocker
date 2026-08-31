@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">IBlocker</string>
+    <string name="app_name">Just an AdBlocker</string>
 
     <string name="tile_label">Ad blocking</string>
     <string name="tile_on">On</string>
     <string name="tile_off">Off</string>
-    <string name="widget_label">IBlocker status</string>
+    <string name="widget_label">Just an AdBlocker status</string>
 
     <string name="notification_channel">Protection</string>
     <string name="notification_channel_description">Shows that on-device DNS filtering is running.</string>

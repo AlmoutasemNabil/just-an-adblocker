@@ -18,5 +18,5 @@ object TunnelConstants {
     const val MTU = 1500
 
     /** Shown as the session name in Android's VPN status sheet. */
-    const val SESSION_NAME = "IBlocker (on-device)"
+    const val SESSION_NAME = "Just an AdBlocker (on-device)"
 }

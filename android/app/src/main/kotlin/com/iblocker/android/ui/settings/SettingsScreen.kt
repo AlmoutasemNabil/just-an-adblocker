@@ -207,7 +207,7 @@ fun SettingsScreen(
                 )
             }
             Text(
-                text = "IBlocker runs entirely on-device: a local VPN inspects only DNS lookups and " +
+                text = "Just an AdBlocker runs entirely on-device: a local VPN inspects only DNS lookups and " +
                     "answers blocked ones itself. No accounts, no subscriptions, no telemetry.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

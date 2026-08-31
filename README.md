@@ -1,11 +1,14 @@
-# IBlocker — open-source ad blocker for iOS and Android that blocks ads *inside apps*
+# Just an AdBlocker — open-source ad blocker for iOS and Android that blocks ads *inside apps*
 
-**IBlocker is a free, open-source, system-wide ad blocker for iPhone, iPad, and
-Android that blocks ads inside apps — not just in the browser.** It runs a
-local VPN that filters DNS on the device, kills AdMob and the other mobile ad
-SDKs before they load, and sends nothing about you anywhere. No subscription,
-no account, no server. You build it once from source and it keeps working
-because you own it.
+**Just an AdBlocker is a free, open-source, system-wide ad blocker for iPhone,
+iPad, and Android that blocks ads inside apps — not just in the browser.** It
+runs a local VPN that filters DNS on the device, kills AdMob and the other
+mobile ad SDKs before they load, and sends nothing about you anywhere. No
+subscription, no account, no server. You build it once from source and it
+keeps working because you own it.
+
+The name is the promise: it is *just* an ad blocker. It will never grow a
+subscription, a VPN upsell, an account system, or a telemetry pipeline.
 
 [![CI](https://github.com/AlmoutasemNabil/IBlocker/actions/workflows/ci.yml/badge.svg)](https://github.com/AlmoutasemNabil/IBlocker/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -14,9 +17,9 @@ because you own it.
 
 <table>
   <tr>
-    <td><img src="docs/screenshots/ios-dashboard.png" alt="IBlocker iOS dashboard showing DNS ad blocking active with 445K rules loaded" width="100%"></td>
-    <td><img src="docs/screenshots/ios-lists.png" alt="IBlocker iOS filter lists screen with OISD, StevenBlack and AdGuard DNS blocklists enabled" width="100%"></td>
-    <td><img src="docs/screenshots/ios-settings.png" alt="IBlocker iOS settings showing encrypted upstream DNS resolver options" width="100%"></td>
+    <td><img src="docs/screenshots/ios-dashboard.png" alt="Just an AdBlocker iOS dashboard showing DNS ad blocking active with 445K rules loaded" width="100%"></td>
+    <td><img src="docs/screenshots/ios-lists.png" alt="Just an AdBlocker iOS filter lists screen with OISD, StevenBlack and AdGuard DNS blocklists enabled" width="100%"></td>
+    <td><img src="docs/screenshots/ios-settings.png" alt="Just an AdBlocker iOS settings showing encrypted upstream DNS resolver options" width="100%"></td>
   </tr>
   <tr>
     <td align="center"><sub><b>iOS</b> — protection on, live block counts</sub></td>
@@ -24,9 +27,9 @@ because you own it.
     <td align="center"><sub><b>iOS</b> — your resolver, encrypted</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/android-dashboard.png" alt="IBlocker Android dashboard showing blocked domain statistics" width="100%"></td>
-    <td><img src="docs/screenshots/android-lists.png" alt="IBlocker Android filter lists with HaGeZi and OISD blocklists" width="100%"></td>
-    <td><img src="docs/screenshots/android-settings.png" alt="IBlocker Android settings showing encrypted DNS bypass blocking" width="100%"></td>
+    <td><img src="docs/screenshots/android-dashboard.png" alt="Just an AdBlocker Android dashboard showing blocked domain statistics" width="100%"></td>
+    <td><img src="docs/screenshots/android-lists.png" alt="Just an AdBlocker Android filter lists with HaGeZi and OISD blocklists" width="100%"></td>
+    <td><img src="docs/screenshots/android-settings.png" alt="Just an AdBlocker Android settings showing encrypted DNS bypass blocking" width="100%"></td>
   </tr>
   <tr>
     <td align="center"><sub><b>Android</b> — same engine, same numbers</sub></td>
@@ -55,12 +58,12 @@ That's the most revealing stream your device produces. Hand it to a
 subscription app and you've traded ad networks for one company that sees
 everything — and you can't audit the binary you're trusting.
 
-IBlocker's answer is to never be in a position to abuse it. There is no
+Just an AdBlocker's answer is to never be in a position to abuse it. There is no
 server to send it to.
 
 ## How it compares
 
-| | IBlocker | Commercial blocker apps | Pi-hole | Hosted DNS filters |
+| | Just an AdBlocker | Commercial blocker apps | Pi-hole | Hosted DNS filters |
 |---|---|---|---|---|
 | Blocks ads **inside apps** | ✅ | ✅ | ✅ (on your network) | ✅ |
 | Works on cellular | ✅ | ✅ | ❌ LAN only | ✅ |
@@ -151,7 +154,7 @@ A privacy claim is worth only as much as the things it admits to.
   and the app still builds.
 - **`allowBackup="false"`** on Android — your blocklist and query log are
   deliberately excluded from cloud backup.
-- **Your upstream resolver still sees your unblocked queries.** IBlocker
+- **Your upstream resolver still sees your unblocked queries.** Just an AdBlocker
   removes *ad networks* from the picture; it does not make you invisible to
   whoever runs the DNS server you picked. The bundled options (Quad9, Mullvad,
   AdGuard, Cloudflare, NextDNS) have published policies, and you can enter any
@@ -262,7 +265,7 @@ account needed, no fee. Details in [android/README.md](android/README.md).
 Yes, but not with a Safari content blocker — those only affect Safari. In-app
 ads come from SDKs like AdMob embedded in the app itself. Blocking them
 requires filtering DNS on the device, which on iOS means a local VPN using the
-Network Extension API. That's what IBlocker does.
+Network Extension API. That's what Just an AdBlocker does.
 
 ### Does this send my browsing data anywhere?
 
@@ -281,7 +284,7 @@ account, which is Apple's fee, not ours. Android is free outright.
 ### How is this different from Pi-hole?
 
 Pi-hole runs on your network, so it only protects devices on your Wi-Fi.
-IBlocker runs on the phone, so it also works on cellular and on any Wi-Fi you
+Just an AdBlocker runs on the phone, so it also works on cellular and on any Wi-Fi you
 join. Same DNS-sinkhole idea, different place to put it.
 
 ### Does it slow down my phone or drain the battery?
