@@ -9,7 +9,7 @@ operating systems expose different holes and different levers.
 
 | iOS | Android | Notes |
 |---|---|---|
-| `IBlockerKit` (Swift package) | `android/core` (Kotlin/JVM library) | Line-for-line port. No platform imports, so the whole packet path is unit-tested off-device on both sides. |
+| `ios/IBlockerKit` (Swift package) | `android/core` (Kotlin/JVM library) | Line-for-line port. No platform imports, so the whole packet path is unit-tested off-device on both sides. |
 | `NEPacketTunnelProvider` | `IBlockerVpnService` | Same split-route design: only `198.18.0.2` / `fd00::2` routed in, and set as the system DNS servers. |
 | `NEPacketTunnelNetworkSettings` | `VpnService.Builder` | `addAddress`/`addRoute`/`addDnsServer`/`setMtu` instead of `NEIPv4Settings` + `NEDNSSettings`. |
 | App Group container | `context.filesDir` | Android runs the UI and the service in one app, so the shared container is just app-private storage. Same file names. |

@@ -1,13 +1,15 @@
 .DS_Store
+
+# iOS / Xcode
 xcuserdata/
 *.xcuserstate
 DerivedData/
 .build/
 .swiftpm/
 *.xcresult
-Config/Signing.local.xcconfig
+ios/Config/Signing.local.xcconfig
 
-# Android
+# Android / Gradle
 android/.gradle/
 android/build/
 android/*/build/

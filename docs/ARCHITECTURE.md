@@ -83,7 +83,7 @@ no parsing ambiguity.
 ## Testing strategy
 
 Everything above the NetworkExtension API boundary is a pure function of
-bytes and lives in `IBlockerKit`, so the whole path — raw IP packet in,
+bytes and lives in `ios/IBlockerKit`, so the whole path — raw IP packet in,
 raw IP packet out — runs under `swift test` on Linux/macOS:
 craft a real DNS query packet, hand it to `DNSProxyEngine`, assert the
 reply parses, checksums validate, and the verdict/log/stats are right.

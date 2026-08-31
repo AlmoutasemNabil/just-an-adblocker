@@ -2,14 +2,14 @@
 
 ## TL;DR
 
-Edit `Config/Signing.xcconfig`:
+Edit `ios/Config/Signing.xcconfig`:
 
 ```
 DEVELOPMENT_TEAM = ABCDE12345      // Team ID from developer.apple.com → Membership
 BUNDLE_ID_PREFIX = com.yourname
 ```
 
-Open `IBlocker.xcodeproj`, select your device, Run. Xcode's automatic
+Open `ios/IBlocker.xcodeproj`, select your device, Run. Xcode's automatic
 signing registers everything (App IDs, App Group, VPN capability) on first
 build.
 

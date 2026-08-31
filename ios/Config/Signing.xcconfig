@@ -1,0 +1,23 @@
+// ─────────────────────────────────────────────────────────────
+// The ONLY file you need to edit before building.
+//
+//   DEVELOPMENT_TEAM   your Apple Developer Team ID (a paid account is
+//                      required — the Network Extension entitlement is
+//                      not available on a free one).
+//                      Find it at developer.apple.com/account → Membership.
+//
+//   BUNDLE_ID_PREFIX   any reverse-DNS prefix you control. Change this if
+//                      you are building your own copy; the default belongs
+//                      to the upstream author and you cannot sign with it.
+//
+// Everything else — the extension bundle IDs and the App Group — derives
+// from these two values. See docs/SIGNING.md.
+//
+// Prefer not to touch a tracked file? Create Signing.local.xcconfig next to
+// this one with your own values; it is gitignored and overrides what's here.
+// ─────────────────────────────────────────────────────────────
+
+DEVELOPMENT_TEAM =
+BUNDLE_ID_PREFIX = com.almoutasem
+
+#include? "Signing.local.xcconfig"
